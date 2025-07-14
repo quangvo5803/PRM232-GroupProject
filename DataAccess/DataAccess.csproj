@@ -7,11 +7,19 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="DbContext\" />
-    <Folder Include="Entities\" />
+    <Compile Remove="DbContext\**" />
+    <EmbeddedResource Remove="DbContext\**" />
+    <None Remove="DbContext\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Folder Include="UnitOfWork\" />
-    <Folder Include="Repositories\Interfaces\" />
-    <Folder Include="Repositories\Implement\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CloudinaryDotNet" Version="1.27.6" />
+    <PackageReference Include="Microsoft.AspNetCore.Http.Features" Version="5.0.17" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.18" />
   </ItemGroup>
 
 </Project>
