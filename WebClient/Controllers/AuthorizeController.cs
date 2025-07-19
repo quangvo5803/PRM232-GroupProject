@@ -1,6 +1,6 @@
 ﻿using BusinessObject.DTOs.Authorize;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
+using Utilities.Exceptions;
 using WebClient.Services.Interface;
 
 namespace WebClient.Controllers
@@ -31,7 +31,7 @@ namespace WebClient.Controllers
 
             if (!response.IsSuccessStatusCode)
             {
-                await HandleValidationErrorAsync(response);
+                await ErrorHandler.HandleValidationErrorAsync(response, TempData);
                 return View(dto);
             }
 
@@ -58,7 +58,7 @@ namespace WebClient.Controllers
 
             if (!response.IsSuccessStatusCode)
             {
-                await HandleValidationErrorAsync(response);
+                await ErrorHandler.HandleValidationErrorAsync(response, TempData);
                 return View(dto);
             }
 
@@ -84,7 +84,7 @@ namespace WebClient.Controllers
 
             if (!response.IsSuccessStatusCode)
             {
-                await HandleValidationErrorAsync(response);
+                await ErrorHandler.HandleValidationErrorAsync(response, TempData);
                 return View(dto);
             }
 
@@ -102,53 +102,24 @@ namespace WebClient.Controllers
                 );
             }
 
-            return RedirectToAction("Index", "Home");
+            switch (token?.Role)
+            {
+                case "Admin":
+                    return RedirectToAction("Index", "Admin");
+                case "Customer":
+                    return RedirectToAction("Index", "Home");
+                case "Restaurent":
+                    return RedirectToAction("Index", "Restaurent");
+                default:
+                    TempData["error"] = "No access.";
+                    return RedirectToAction("Login");
+            }
         }
 
         public IActionResult Logout()
         {
             HttpContext.Session.Clear();
             return RedirectToAction("Login");
-        }
-
-        // Helper: Handle validation errors from WebAPI
-        private async Task HandleValidationErrorAsync(HttpResponseMessage response)
-        {
-            var content = await response.Content.ReadAsStringAsync();
-
-            try
-            {
-                var errorObj = JsonConvert.DeserializeObject<Dictionary<string, object>>(content);
-                if (errorObj != null && errorObj.ContainsKey("errors"))
-                {
-                    var errors = JsonConvert.DeserializeObject<Dictionary<string, string[]>>(
-                        errorObj["errors"].ToString()
-                    );
-
-                    var errorMessages = new List<string>();
-                    foreach (var kvp in errors)
-                    {
-                        foreach (var error in kvp.Value)
-                        {
-                            errorMessages.Add(error);
-                        }
-                    }
-
-                    TempData["error"] = string.Join("<br/>", errorMessages);
-                }
-                else if (errorObj != null && errorObj.ContainsKey("message"))
-                {
-                    TempData["error"] = errorObj["message"].ToString();
-                }
-                else
-                {
-                    TempData["error"] = "Đã xảy ra lỗi không xác định.";
-                }
-            }
-            catch
-            {
-                TempData["error"] = "Đã xảy ra lỗi không xác định.";
-            }
         }
     }
 }

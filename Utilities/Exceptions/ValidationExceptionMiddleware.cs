@@ -1,5 +1,5 @@
-﻿using System.Text.Json;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
+using Newtonsoft.Json;
 
 namespace Utilities.Exceptions
 {
@@ -38,7 +38,7 @@ namespace Utilities.Exceptions
 
             var response = new { message = exception.Message, errors = exception.Errors };
 
-            var json = JsonSerializer.Serialize(response);
+            var json = JsonConvert.SerializeObject(response); // thay thế JsonSerializer.Serialize
             await context.Response.WriteAsync(json);
         }
 
@@ -49,7 +49,7 @@ namespace Utilities.Exceptions
 
             var response = new { message = "An unexpected error occurred." };
 
-            var json = JsonSerializer.Serialize(response);
+            var json = JsonConvert.SerializeObject(response); // thay thế JsonSerializer.Serialize
             await context.Response.WriteAsync(json);
         }
     }

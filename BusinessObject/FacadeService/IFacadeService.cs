@@ -1,4 +1,10 @@
-﻿namespace BusinessObject.FacadeService
+﻿using BusinessObject.Services.Interfaces;
+using DataAccess.Repositories.Interfaces;
+
+namespace BusinessObject.FacadeService
 {
-    public interface IFacadeService { }
+    public interface IFacadeService
+    {
+        ICategoryService Category { get; }
+    }
 }

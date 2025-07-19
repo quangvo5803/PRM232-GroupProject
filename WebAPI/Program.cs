@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using System.Text;
 using BusinessObject.FacadeService;
 using BusinessObject.Mapping;
@@ -55,8 +56,17 @@ namespace WebAPI
                         IssuerSigningKey = new SymmetricSecurityKey(
                             Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"])
                         ),
+                        RoleClaimType = ClaimTypes.Role,
                     };
                 });
+
+            builder.Services.AddAuthorization(options =>
+            {
+                options.AddPolicy("AdminOnly", policy => policy.RequireRole("Admin"));
+                options.AddPolicy("CustomerOnly", policy => policy.RequireRole("Customer"));
+                options.AddPolicy("RestaurantOnly", policy => policy.RequireRole("Restaurant"));
+            });
+
             /// Register services for Application
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
             builder.Services.AddScoped<IFacadeService, FacadeService>();
@@ -79,14 +89,15 @@ namespace WebAPI
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
+            app.UseRouting();
 
             app.UseHttpsRedirection();
             app.UseMiddleware<ValidationExceptionMiddleware>();
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.MapControllers();
-
             app.Run();
         }
     }

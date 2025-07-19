@@ -63,21 +63,21 @@
                                         <i class="bi bi-box-arrow-right fs-5 text-danger"></i>
                                     </div>
                                 </a>
-                                <form id="logoutForm" method="post" asp-action="Logout" asp-controller="Home" class="d-none">
+                                <form id="logoutForm" method="post" asp-action="Logout" asp-controller="Authorize" class="d-none">
                                 </form>
                             </li>
                         }
                         else
                         {
                             <li class="nav-item me-3">
-                                <a class="d-block" asp-action="Register" asp-controller="Home" title="Register">
+                                <a class="d-block" asp-action="Register" asp-controller="Authorize" title="Register">
                                     <div class="rounded-circle bg-light d-flex align-items-center justify-content-center" style="width: 38px; height: 38px;">
                                         <i class="bi bi-person-plus-fill fs-5 text-dark"></i>
                                     </div>
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a class="d-block" asp-action="Login" asp-controller="Home" title="Login">
+                                <a class="d-block" asp-action="Login" asp-controller="Authorize" title="Login">
                                     <div class="rounded-circle bg-light d-flex align-items-center justify-content-center" style="width: 38px; height: 38px;">
                                         <i class="bi bi-box-arrow-in-right fs-5 text-dark"></i>
                                     </div>
