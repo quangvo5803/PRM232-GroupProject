@@ -2,7 +2,7 @@
 using BusinessObject.FacadeService;
 using Microsoft.AspNetCore.Mvc;
 
-namespace WebAPI.Controllers
+namespace WebAPI.Controllers.Admin
 {
     [Route("api/[controller]")]
     [ApiController]
@@ -50,9 +50,8 @@ namespace WebAPI.Controllers
             );
         }
 
-        [HttpPut("UpdateCategory/{id}")]
+        [HttpPut("UpdateCategory")]
         public async Task<IActionResult> UpdateCategory(
-            int id,
             [FromBody] CategoryUpdateRequestDto categoryDto
         )
         {
