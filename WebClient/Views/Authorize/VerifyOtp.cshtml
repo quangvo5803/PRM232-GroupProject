@@ -5,8 +5,8 @@
         <div class="container pb-3">
             <div class="row">
                 <div class="col-12 text-center mb-5">
-                    <h2 class="display-5 fw-bold">Xác minh OTP</h2>
-                    <p>Chúng tôi đã gửi mã xác minh đến <strong>@Model.Email</strong></p>
+                    <h2 class="display-5 fw-bold">Verify OTP</h2>
+                    <p>We have sent a verification code to <strong>@Model.Email</strong></p>
                 </div>
             </div>
 
@@ -18,13 +18,13 @@
                         <input type="hidden" asp-for="Email" />
 
                         <div class="form-floating mb-3">
-                            <input asp-for="OTP" class="form-control border-0 border-bottom rounded-0" placeholder="Mã OTP" />
-                            <label asp-for="OTP"><i class="bi bi-shield-lock"></i> Mã OTP</label>
+                            <input asp-for="OTP" class="form-control border-0 border-bottom rounded-0" placeholder="OTP Code" />
+                            <label asp-for="OTP"><i class="bi bi-shield-lock"></i> OTP Code</label>
                             <span asp-validation-for="OTP" class="text-danger"></span>
                         </div>
 
                         <div class="d-grid">
-                            <button class="btn btn-success btn-lg" type="submit">Xác minh</button>
+                            <button class="btn btn-success btn-lg" type="submit">Verify</button>
                         </div>
                     </form>
                 </div>
