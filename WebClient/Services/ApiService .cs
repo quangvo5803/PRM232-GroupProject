@@ -21,7 +21,7 @@ namespace WebClient.Services
             _config = config;
         }
 
-        public async Task<HttpResponseMessage> GetAsync(string endpoint, bool isSkip = false)
+        public async Task<HttpResponseMessage> GetAsync(string endpoint, bool isSkip = true)
         {
             var client = _httpClientFactory.CreateClient();
 
@@ -89,7 +89,7 @@ namespace WebClient.Services
         public async Task<HttpResponseMessage> PutAsync(
             string endpoint,
             MultipartFormDataContent formData,
-            bool isSkip = false
+            bool isSkip = true
         )
         {
             var client = _httpClientFactory.CreateClient();
@@ -112,7 +112,7 @@ namespace WebClient.Services
         public async Task<HttpResponseMessage> PutAsync<T>(
             string endpoint,
             T content,
-            bool isSkip = false
+            bool isSkip = true
         )
         {
             var client = _httpClientFactory.CreateClient();
@@ -132,7 +132,7 @@ namespace WebClient.Services
             return await client.PutAsJsonAsync(_config["API:BaseUrl"] + endpoint, content);
         }
 
-        public async Task<HttpResponseMessage> DeleteAsync(string endpoint, bool isSkip = false)
+        public async Task<HttpResponseMessage> DeleteAsync(string endpoint, bool isSkip = true)
         {
             var client = _httpClientFactory.CreateClient();
 
