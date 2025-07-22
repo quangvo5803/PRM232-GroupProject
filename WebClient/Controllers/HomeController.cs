@@ -17,7 +17,7 @@ public class HomeController : Controller
 
     public async Task<IActionResult> Index()
     {
-        var response = await _apiService.GetAsync("/api/Customer/GetAllProducts");
+        var response = await _apiService.GetAsync("/api/Home/GetAllProducts");
         if (!response.IsSuccessStatusCode)
         {
             TempData["error"] = "Failed to load products.";
@@ -29,7 +29,7 @@ public class HomeController : Controller
 
     public async Task<IActionResult> Menu()
     {
-        var response = await _apiService.GetAsync("/api/Customer/GetAllProducts");
+        var response = await _apiService.GetAsync("/api/Home/GetAllProducts");
         if (!response.IsSuccessStatusCode)
         {
             TempData["error"] = "Failed to load products.";
@@ -41,7 +41,7 @@ public class HomeController : Controller
 
     public async Task<IActionResult> ProductDetail(int id, int pageNumber = 1, int pageSize = 5)
     {
-        var response = await _apiService.GetAsync($"/api/Customer/GetProductById/{id}");
+        var response = await _apiService.GetAsync($"/api/Home/GetProductById/{id}");
         if (!response.IsSuccessStatusCode)
         {
             await ErrorHandler.HandleValidationErrorAsync(response, TempData);

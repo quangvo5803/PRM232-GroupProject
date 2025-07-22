@@ -11,6 +11,11 @@ namespace WebClient.Controllers.Admin
     {
         public IActionResult ProductList()
         {
+            var accessToken = HttpContext.Session.GetString("AccessToken");
+            if (string.IsNullOrEmpty(accessToken))
+            {
+                return RedirectToAction("Login", "Authorize");
+            }
             return View();
         }
 
@@ -79,7 +84,11 @@ namespace WebClient.Controllers.Admin
                 }
             }
 
-            var response = await _apiService.PostAsync("/api/Admin/CreateProduct", formData);
+            var response = await _apiService.PostAsync(
+                "/api/Admin/CreateProduct",
+                formData,
+                isSkip: false
+            );
             if (!response.IsSuccessStatusCode)
             {
                 await ErrorHandler.HandleValidationErrorAsync(response, TempData);

@@ -39,13 +39,11 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="d-block" onclick="document.getElementById('logoutForm').submit();" style="cursor: pointer;" title="Logout">
+                        <a asp-controller="Authorize" asp-action="Logout" class="d-block" style="cursor: pointer;" title="Logout">
                             <div class="rounded-circle bg-light d-flex align-items-center justify-content-center" style="width: 38px; height: 38px;">
-                                <i class="fa-solid fa-right-from-bracket text-danger"></i>
+                                <i class="bi bi-box-arrow-right fs-5 text-danger"></i>
                             </div>
                         </a>
-                        <form id="logoutForm" method="post" asp-action="Logout" asp-controller="Authorize" class="d-none">
-                        </form>
                     </li>
                 }
                 else
