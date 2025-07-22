@@ -5,7 +5,6 @@ using DataAccess.Entities.Application;
 using DataAccess.UnitOfWork;
 using Utilities.Exceptions;
 using Utilities.Extensions;
-using Microsoft.AspNetCore.Http;
 
 namespace BusinessObject.Services
 {
@@ -28,9 +27,22 @@ namespace BusinessObject.Services
             if (requestDto.ProductAvatar != null)
             {
                 var image = new ItemImage { ProductId = product.Id, ImageUrl = string.Empty };
-                await _unitOfWork.ItemImage.UploadImageAsync(requestDto.ProductAvatar, "product_avatars", image);
+                await _unitOfWork.ItemImage.UploadImageAsync(
+                    requestDto.ProductAvatar,
+                    "FoodHub/Product",
+                    image
+                );
                 product.ProductAvatarId = image.ImageID;
                 await _unitOfWork.SaveAsync();
+            }
+
+            if (requestDto.ProductImages != null && requestDto.ProductImages.Any())
+            {
+                foreach (var file in requestDto.ProductImages)
+                {
+                    var image = new ItemImage { ProductId = product.Id, ImageUrl = string.Empty };
+                    await _unitOfWork.ItemImage.UploadImageAsync(file, "FoodHub/Product", image);
+                }
             }
             var productDto = _mapper.Map<ProductDto>(product);
             return productDto;
@@ -70,14 +82,19 @@ namespace BusinessObject.Services
 
         public async Task<IEnumerable<ProductDto>> GetAllProductAsync()
         {
-            var products = await _unitOfWork.Product.GetAllAsync();
+            var products = await _unitOfWork.Product.GetAllAsync(
+                includeProperties: "Category,ProductAvatar,ProductImages,Feedbacks"
+            );
             var productDtos = _mapper.Map<IEnumerable<ProductDto>>(products ?? new List<Product>());
             return productDtos;
         }
 
         public async Task<ProductDto> GetProductByIdAsync(int id)
         {
-            var product = await _unitOfWork.Product.GetAsync(p => p.Id == id);
+            var product = await _unitOfWork.Product.GetAsync(
+                p => p.Id == id,
+                includeProperties: "Category,ProductAvatar,ProductImages,Feedbacks"
+            );
             if (product == null)
             {
                 var errors = new Dictionary<string, string[]>
@@ -103,10 +120,7 @@ namespace BusinessObject.Services
             }
 
             // Update các trường cơ bản
-            product.Name = requestDto.Name;
-            product.Description = requestDto.Description;
-            product.Price = requestDto.Price;
-            product.CategoryId = requestDto.CategoryId;
+            product.PatchFrom(requestDto);
 
             // Nếu có upload ảnh mới
             if (requestDto.ProductAvatar != null)
@@ -114,7 +128,9 @@ namespace BusinessObject.Services
                 // Xoá ảnh cũ nếu có
                 if (product.ProductAvatarId.HasValue)
                 {
-                    var oldImage = await _unitOfWork.ItemImage.GetAsync(i => i.ImageID == product.ProductAvatarId.Value);
+                    var oldImage = await _unitOfWork.ItemImage.GetAsync(i =>
+                        i.ImageID == product.ProductAvatarId
+                    );
                     if (oldImage != null)
                     {
                         await _unitOfWork.ItemImage.DeleteImageAsync(oldImage.PublicId);
@@ -122,10 +138,31 @@ namespace BusinessObject.Services
                 }
                 // Upload ảnh mới
                 var image = new ItemImage { ProductId = product.Id, ImageUrl = string.Empty };
-                await _unitOfWork.ItemImage.UploadImageAsync(requestDto.ProductAvatar, "product_avatars", image);
+                await _unitOfWork.ItemImage.UploadImageAsync(
+                    requestDto.ProductAvatar,
+                    "FoodHub/Product",
+                    image
+                );
                 product.ProductAvatarId = image.ImageID;
             }
 
+            if (requestDto.ProductImages != null && requestDto.ProductImages.Any())
+            {
+                // Xoá toàn bộ ảnh cũ
+                var oldImages = await _unitOfWork.ItemImage.GetRangeAsync(i =>
+                    i.ProductId == product.Id
+                );
+                foreach (var oldImage in oldImages)
+                {
+                    await _unitOfWork.ItemImage.DeleteImageAsync(oldImage.PublicId);
+                }
+                // Upload ảnh mới
+                foreach (var file in requestDto.ProductImages)
+                {
+                    var image = new ItemImage { ProductId = product.Id, ImageUrl = string.Empty };
+                    await _unitOfWork.ItemImage.UploadImageAsync(file, "FoodHub/Product", image);
+                }
+            }
             await _unitOfWork.SaveAsync();
             // Lấy lại product mới nhất từ DB để trả về đúng thông tin
             var updatedProduct = await _unitOfWork.Product.GetAsync(p => p.Id == product.Id);
@@ -133,4 +170,4 @@ namespace BusinessObject.Services
             return productDto;
         }
     }
-} 
+}

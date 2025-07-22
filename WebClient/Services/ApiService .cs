@@ -40,6 +40,29 @@ namespace WebClient.Services
             return await client.GetAsync(_config["API:BaseUrl"] + endpoint);
         }
 
+        public async Task<HttpResponseMessage> PostAsync(
+            string endpoint,
+            MultipartFormDataContent formData,
+            bool isSkip = false
+        )
+        {
+            var client = _httpClientFactory.CreateClient();
+
+            if (!isSkip)
+            {
+                var token = await GetValidAccessTokenAsync();
+                if (!string.IsNullOrEmpty(token))
+                {
+                    client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(
+                        "Bearer",
+                        token
+                    );
+                }
+            }
+
+            return await client.PostAsync(_config["API:BaseUrl"] + endpoint, formData);
+        }
+
         public async Task<HttpResponseMessage> PostAsync<T>(
             string endpoint,
             T content,
@@ -61,6 +84,29 @@ namespace WebClient.Services
             }
 
             return await client.PostAsJsonAsync(_config["API:BaseUrl"] + endpoint, content);
+        }
+
+        public async Task<HttpResponseMessage> PutAsync(
+            string endpoint,
+            MultipartFormDataContent formData,
+            bool isSkip = false
+        )
+        {
+            var client = _httpClientFactory.CreateClient();
+
+            if (!isSkip)
+            {
+                var token = await GetValidAccessTokenAsync();
+                if (!string.IsNullOrEmpty(token))
+                {
+                    client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(
+                        "Bearer",
+                        token
+                    );
+                }
+            }
+
+            return await client.PutAsync(_config["API:BaseUrl"] + endpoint, formData);
         }
 
         public async Task<HttpResponseMessage> PutAsync<T>(
