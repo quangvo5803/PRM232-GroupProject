@@ -20,11 +20,8 @@ namespace BusinessObject.Services
 
         public async Task<List<ShoppingCartDTO>> GetCartItemsAsync(Guid userId)
         {
-            var query = _unitOfWork.ShoppingCart
-                                   .GetQueryable("Product")
-                                   .Where(x => x.UserId == userId);
-
-            var cartItems = await query.ToListAsync();
+            var cartItems = await _unitOfWork.ShoppingCart
+          .GetAsync(x => x.UserId == userId);
 
             return _mapper.Map<List<ShoppingCartDTO>>(cartItems);
         }
@@ -38,7 +35,6 @@ namespace BusinessObject.Services
             if (existingItem != null)
             {
                 existingItem.Count += quantity;
-                // EF Core tracking entity, không cần Update()
             }
             else
             {
@@ -62,7 +58,12 @@ namespace BusinessObject.Services
             if (item == null)
                 throw new Exception("Không tìm thấy sản phẩm trong giỏ hàng.");
 
-            item.Count = quantity;
+            item.Count += quantity;
+            if (item.Count <= 0)
+            {
+                _unitOfWork.ShoppingCart.Remove(item);
+            }
+            
             await _unitOfWork.SaveAsync();
         }
 
