@@ -4,17 +4,8 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace WebAPI.Controllers.Admin
 {
-    [Route("api/Admin/")]
-    [ApiController]
-    public class AdminProductController : ControllerBase
+    public partial class AdminController : ControllerBase
     {
-        private readonly IFacadeService _facadeService;
-
-        public AdminProductController(IFacadeService facadeService)
-        {
-            _facadeService = facadeService;
-        }
-
         [HttpGet("GetAllProducts")]
         public async Task<IActionResult> GetAllProducts()
         {
@@ -70,4 +61,4 @@ namespace WebAPI.Controllers.Admin
             return NoContent();
         }
     }
-} 
+}

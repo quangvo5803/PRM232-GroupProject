@@ -11,5 +11,6 @@ namespace BusinessObject.DTOs.Product
         public double Price { get; set; }
         public int CategoryId { get; set; }
         public IFormFile? ProductAvatar { get; set; }
+        public List<IFormFile>? ProductImages { get; set; }
     }
-} 
+}

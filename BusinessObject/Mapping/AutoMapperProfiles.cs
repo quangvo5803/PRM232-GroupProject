@@ -15,24 +15,31 @@ namespace BusinessObject.Mapping
             CreateMap<Category, CategoryDto>().ReverseMap();
             CreateMap<Category, CategoryCreateRequestDto>().ReverseMap();
             CreateMap<Category, CategoryUpdateRequestDto>().ReverseMap();
-            CreateMap<Product, ProductDto>().ReverseMap();
+
+            CreateMap<Product, ProductDto>()
+                .ForMember(
+                    dest => dest.ProductImages,
+                    opt =>
+                        opt.MapFrom(src =>
+                            src.ProductImages != null
+                                ? src.ProductImages.Select(i => i.ImageUrl).ToList()
+                                : new List<string>()
+                        )
+                )
+                .ForMember(
+                    dest => dest.ProductAvatar,
+                    opt =>
+                        opt.MapFrom(src =>
+                            src.ProductAvatar != null ? src.ProductAvatar.ImageUrl : null
+                        )
+                );
             CreateMap<ProductCreateDto, Product>()
-                .ForMember(dest => dest.Id, opt => opt.Ignore())
-                .ForMember(dest => dest.ProductAvatarId, opt => opt.Ignore())
                 .ForMember(dest => dest.ProductAvatar, opt => opt.Ignore())
-                .ForMember(dest => dest.ProductImages, opt => opt.Ignore())
-                .ForMember(dest => dest.Feedbacks, opt => opt.Ignore())
-                .ForMember(dest => dest.Category, opt => opt.Ignore())
-                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
-                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
-                .ForMember(dest => dest.Price, opt => opt.MapFrom(src => src.Price))
-                .ForMember(dest => dest.CategoryId, opt => opt.MapFrom(src => src.CategoryId));
+                .ForMember(dest => dest.ProductImages, opt => opt.Ignore());
+
             CreateMap<ProductUpdateDto, Product>()
-                .ForMember(dest => dest.ProductAvatarId, opt => opt.Ignore())
                 .ForMember(dest => dest.ProductAvatar, opt => opt.Ignore())
-                .ForMember(dest => dest.ProductImages, opt => opt.Ignore())
-                .ForMember(dest => dest.Feedbacks, opt => opt.Ignore())
-                .ForMember(dest => dest.Category, opt => opt.Ignore());
+                .ForMember(dest => dest.ProductImages, opt => opt.Ignore());
         }
     }
 }
