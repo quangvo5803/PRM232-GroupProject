@@ -5,11 +5,11 @@ namespace WebAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class CustomerController : ControllerBase
+    public class HomeController : ControllerBase
     {
         private readonly IFacadeService _facadeService;
 
-        public CustomerController(IFacadeService facadeService)
+        public HomeController(IFacadeService facadeService)
         {
             _facadeService = facadeService;
         }

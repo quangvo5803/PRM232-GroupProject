@@ -16,11 +16,21 @@ namespace WebClient.Controllers.Admin
 
         public IActionResult Index()
         {
+            var accessToken = HttpContext.Session.GetString("AccessToken");
+            if (string.IsNullOrEmpty(accessToken))
+            {
+                return RedirectToAction("Login", "Authorize");
+            }
             return View();
         }
 
         public IActionResult CategoryList()
         {
+            var accessToken = HttpContext.Session.GetString("AccessToken");
+            if (string.IsNullOrEmpty(accessToken))
+            {
+                return RedirectToAction("Login", "Authorize");
+            }
             return View();
         }
 
@@ -41,6 +51,11 @@ namespace WebClient.Controllers.Admin
         [HttpGet]
         public IActionResult CreateCategory()
         {
+            var accessToken = HttpContext.Session.GetString("AccessToken");
+            if (string.IsNullOrEmpty(accessToken))
+            {
+                return RedirectToAction("Login", "Authorize");
+            }
             return View();
         }
 

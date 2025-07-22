@@ -43,7 +43,7 @@ namespace WebClient.Services
         public async Task<HttpResponseMessage> PostAsync(
             string endpoint,
             MultipartFormDataContent formData,
-            bool isSkip = false
+            bool isSkip = true
         )
         {
             var client = _httpClientFactory.CreateClient();
@@ -66,7 +66,7 @@ namespace WebClient.Services
         public async Task<HttpResponseMessage> PostAsync<T>(
             string endpoint,
             T content,
-            bool isSkip = false
+            bool isSkip = true
         )
         {
             var client = _httpClientFactory.CreateClient();
