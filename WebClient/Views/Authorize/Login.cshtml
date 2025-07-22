@@ -1,0 +1,116 @@
+﻿@model LoginRequestDto
+
+<div class="login-form">
+    <section class="py-3 py-md-5 py-xl-8 login-background">
+        <div class="container pb-3">
+            <div class="row">
+                <div class="col-12">
+                    <div class="mb-5 text-center">
+                        <h2 class="display-5 fw-bold">Login</h2>
+                        <p>
+                            Don't have an account?
+                            <a asp-controller="Authorize" asp-action="Register" class="text-decoration-underline">Sign up</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row justify-content-center">
+                <div class="col-12 col-lg-10 col-xl-8">
+                    <div class="row justify-content-center">
+                        <div class="col-12 col-lg-5">
+                            <form asp-action="Login" method="post">
+                                <div class="row gy-3 overflow-hidden">
+                                    <div class="col-12">
+                                        <div class="form-floating mb-3">
+                                            <input asp-for="Email" class="form-control border-0 border-bottom rounded-0" placeholder="name@example.com" />
+                                            <label asp-for="Email"><i class="bi bi-envelope"></i> Email</label>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12">
+                                        <div class="d-grid">
+                                            <button class="btn btn-success btn-lg" type="submit">Continue with Email</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+
+                        <div class="col-12 col-lg-2 d-flex align-items-center justify-content-center gap-3 flex-lg-column">
+                            <div class="bg-dark h-100 d-none d-lg-block" style="width: 1px; --bs-bg-opacity: .1;"></div>
+                            <div class="bg-dark w-100 d-lg-none" style="height: 1px; --bs-bg-opacity: .1;"></div>
+                            <div>Or</div>
+                            <div class="bg-dark h-100 d-none d-lg-block" style="width: 1px; --bs-bg-opacity: .1;"></div>
+                            <div class="bg-dark w-100 d-lg-none" style="height: 1px; --bs-bg-opacity: .1;"></div>
+                        </div>
+
+                        <div class="col-12 col-lg-5 d-flex align-items-center">
+                            <div class="w-100">
+                                <div id="g_id_onload"
+                                     data-client_id="784925800619-1g3lgienm08f1mlk47pc81dpclpa7fd2.apps.googleusercontent.com"
+                                     data-callback="handleCredentialResponse"
+                                     data-auto_prompt="false">
+                                </div>
+                                <div class="g_id_signin"
+                                     data-type="standard"
+                                     data-shape="pill"
+                                     data-theme="outline"
+                                     data-text="sign_in_with"
+                                     data-size="large"
+                                     data-logo_alignment="left">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <!-- Google Identity SDK -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+
+    <script>
+        function handleCredentialResponse(response) {
+            const idToken = response.credential;
+
+            fetch("/Authorize/GoogleLogin", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ idToken })
+            })
+            .then(res => {
+                if (!res.ok) throw new Error("Login failed");
+                return res.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    switch (data.role) {
+                        case "Admin":
+                            window.location.href = "/Admin/Index";
+                            break;
+                        case "Customer":
+                            window.location.href = "/Home/Index";
+                            break;
+                        case "Restaurent":
+                            window.location.href = "/Restaurent/Index";
+                            break;
+                        default:
+                            alert("No access");
+                            break;
+                    }
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                alert("Google login failed.");
+            });
+        }
+    </script>
+}
