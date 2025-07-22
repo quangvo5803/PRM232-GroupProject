@@ -1,4 +1,9 @@
-﻿namespace BusinessObject.FacadeService
+﻿using BusinessObject.Services.Interfaces;
+
+namespace BusinessObject.FacadeService
 {
-    public interface IFacadeService { }
+    public interface IFacadeService 
+    {
+        IShoppingCartService ShoppingCartService { get; }
+    }
 }
