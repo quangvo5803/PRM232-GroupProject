@@ -58,12 +58,11 @@ namespace BusinessObject.Services
             if (item == null)
                 throw new Exception("Không tìm thấy sản phẩm trong giỏ hàng.");
 
-            item.Count += quantity;
-            if (item.Count <= 0)
-            {
+            if (quantity == -1 && item.Count == 1)
                 _unitOfWork.ShoppingCart.Remove(item);
-            }
-            
+            else
+                item.Count += quantity;
+
             await _unitOfWork.SaveAsync();
         }
 
