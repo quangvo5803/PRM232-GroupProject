@@ -1,12 +1,4 @@
 ﻿using BusinessObject.Services.Interfaces;
-<<<<<<< HEAD
-
-namespace BusinessObject.FacadeService
-{
-    public interface IFacadeService 
-    {
-        IShoppingCartService ShoppingCartService { get; }
-=======
 using DataAccess.Repositories.Interfaces;
 
 namespace BusinessObject.FacadeService
@@ -15,6 +7,7 @@ namespace BusinessObject.FacadeService
     {
         ICategoryService Category { get; }
         IProductService Product { get; }
->>>>>>> develop
+        IShoppingCartService ShoppingCart{ get; }
+
     }
 }

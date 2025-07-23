@@ -1,10 +1,10 @@
 ﻿using AutoMapper;
-<<<<<<< HEAD
+
 using BusinessObject.DTOs.ShoppingCart;
-=======
+
 using BusinessObject.DTOs.Category;
 using BusinessObject.DTOs.Product;
->>>>>>> develop
+
 using DataAccess.Entities.Application;
 using Utilities.Extensions;
 
@@ -16,14 +16,15 @@ namespace BusinessObject.Mapping
         {
             CreateMap<OrderStatus, string>().ConvertUsing(src => src.GetDisplayName());
 
-<<<<<<< HEAD
             // Map ShopppingCart to ShopppingCartDTO
             CreateMap<ShoppingCart, ShoppingCartDTO>()
                 .ForMember(dest => dest.ProductName, opt => opt.MapFrom(src => src.Product.Name))
                 .ForMember(dest => dest.Price, opt => opt.MapFrom(src => src.Product.Price));
 
-            CreateMap<ShoppingCartDTO, ShoppingCart>();
-=======
+            CreateMap<ShoppingCartCreateRequestDto, ShoppingCart>();
+            CreateMap<ShoppingCartUpdateRequestDto, ShoppingCart>();
+
+
             CreateMap<Category, CategoryDto>().ReverseMap();
             CreateMap<Category, CategoryCreateRequestDto>().ReverseMap();
             CreateMap<Category, CategoryUpdateRequestDto>().ReverseMap();
@@ -52,7 +53,7 @@ namespace BusinessObject.Mapping
             CreateMap<ProductUpdateDto, Product>()
                 .ForMember(dest => dest.ProductAvatar, opt => opt.Ignore())
                 .ForMember(dest => dest.ProductImages, opt => opt.Ignore());
->>>>>>> develop
+
         }
     }
 }
