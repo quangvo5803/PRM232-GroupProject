@@ -12,9 +12,15 @@ namespace WebClient.Controllers.Admin
         public IActionResult ProductList()
         {
             var accessToken = HttpContext.Session.GetString("AccessToken");
+            var userRole = HttpContext.Session.GetString("Role");
             if (string.IsNullOrEmpty(accessToken))
             {
                 return RedirectToAction("Login", "Authorize");
+            }
+            if (userRole != "Admin")
+            {
+                TempData["error"] = "You do not have permission to access this page.";
+                return RedirectToAction("Index", "Home");
             }
             return View();
         }
@@ -46,6 +52,17 @@ namespace WebClient.Controllers.Admin
         [HttpGet]
         public async Task<IActionResult> CreateProduct()
         {
+            var accessToken = HttpContext.Session.GetString("AccessToken");
+            var userRole = HttpContext.Session.GetString("Role");
+            if (string.IsNullOrEmpty(accessToken))
+            {
+                return RedirectToAction("Login", "Authorize");
+            }
+            if (userRole != "Admin")
+            {
+                TempData["error"] = "You do not have permission to access this page.";
+                return RedirectToAction("Index", "Home");
+            }
             var response = await _apiService.GetAsync("/api/Admin/GetAllCategories", isSkip: false);
             if (!response.IsSuccessStatusCode)
             {
@@ -103,6 +120,17 @@ namespace WebClient.Controllers.Admin
         [HttpGet]
         public async Task<IActionResult> UpdateProduct(int id)
         {
+            var accessToken = HttpContext.Session.GetString("AccessToken");
+            var userRole = HttpContext.Session.GetString("Role");
+            if (string.IsNullOrEmpty(accessToken))
+            {
+                return RedirectToAction("Login", "Authorize");
+            }
+            if (userRole != "Admin")
+            {
+                TempData["error"] = "You do not have permission to access this page.";
+                return RedirectToAction("Index", "Home");
+            }
             var response = await _apiService.GetAsync(
                 $"/api/Admin/GetProductById/{id}",
                 isSkip: false
@@ -168,7 +196,11 @@ namespace WebClient.Controllers.Admin
                 }
             }
 
-            var response = await _apiService.PutAsync("/api/Admin/UpdateProduct", formData);
+            var response = await _apiService.PutAsync(
+                "/api/Admin/UpdateProduct",
+                formData,
+                isSkip: false
+            );
 
             if (!response.IsSuccessStatusCode)
             {

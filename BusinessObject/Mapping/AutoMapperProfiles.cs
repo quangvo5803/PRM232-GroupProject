@@ -1,6 +1,10 @@
 ﻿using AutoMapper;
+
+using BusinessObject.DTOs.ShoppingCart;
+
 using BusinessObject.DTOs.Category;
 using BusinessObject.DTOs.Product;
+
 using DataAccess.Entities.Application;
 using Utilities.Extensions;
 
@@ -11,6 +15,24 @@ namespace BusinessObject.Mapping
         public AutoMapperProfiles()
         {
             CreateMap<OrderStatus, string>().ConvertUsing(src => src.GetDisplayName());
+
+            // Map ShopppingCart to ShopppingCartDTO
+            CreateMap<ShoppingCart, ShoppingCartDTO>()
+            .ForMember(dest => dest.ProductName, opt => opt.MapFrom(src => src.Product.Name))
+            .ForMember(dest => dest.Price, opt => opt.MapFrom(src => src.Product.Price))
+            .ForMember(
+                dest => dest.ProductAvatar,
+                opt =>
+                    opt.MapFrom(src =>
+                        src.Product.ProductAvatar != null
+                            ? src.Product.ProductAvatar.ImageUrl
+                            : null
+                    )
+            );
+
+            CreateMap<ShoppingCartCreateRequestDto, ShoppingCart>();
+            CreateMap<ShoppingCartUpdateRequestDto, ShoppingCart>();
+
 
             CreateMap<Category, CategoryDto>().ReverseMap();
             CreateMap<Category, CategoryCreateRequestDto>().ReverseMap();
@@ -40,6 +62,7 @@ namespace BusinessObject.Mapping
             CreateMap<ProductUpdateDto, Product>()
                 .ForMember(dest => dest.ProductAvatar, opt => opt.Ignore())
                 .ForMember(dest => dest.ProductImages, opt => opt.Ignore());
+
         }
     }
 }

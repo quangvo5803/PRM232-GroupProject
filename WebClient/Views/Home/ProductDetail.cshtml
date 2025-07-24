@@ -1,5 +1,6 @@
 ﻿@using System.Globalization
 @model ProductDto
+
 @{
     ViewData["Title"] = "Product Detail";
     // var feedbacks = ViewBag.Feedbacks as List<Feedback>;
@@ -112,7 +113,9 @@
 
                     </dl>
                     <hr />
-                    <a asp-action="AddToCart" asp-controller="Customer" asp-route-productId="@Model.Id" class="btn btn-primary shadow-0"> <i class="me-1 fa fa-shopping-basket"></i> Add to cart </a>
+                    <button class="btn btn-primary shadow-0" onclick="addToCart('@Model.Id')">
+                        <i class="me-1 fa fa-shopping-basket"></i> Add to cart
+                    </button>
                 </div>
             </main>
         </div>
@@ -250,6 +253,50 @@
         </div>
     </div>
 </section>
+@section Scripts {
+    <script>
+        const userId = @Html.Raw(Json.Serialize(Context.Session.GetString("UserId")))
+        async function addToCart(productId) {
+            if (!userId) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'You need to login to add to cart',
+                    text: 'Please login to continue.',
+                });
+                return;
+            }
+            const response = await fetch('/Customer/AddItem', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                ProductId: productId,
+                Quantity: 1,
+                UserId: userId
+                })
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Thêm vào giỏ hàng thành công!',
+                    showConfirmButton: false,
+                    timer: 1500
+                });
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Không thể thêm vào giỏ hàng!',
+                    text: 'Vui lòng thử lại.'
+                });
+            }
+        }
+    </script>
+}
+
 <style>
     .pagination {
         margin-top: 20px;

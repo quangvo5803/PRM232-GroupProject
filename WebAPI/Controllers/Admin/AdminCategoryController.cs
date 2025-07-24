@@ -1,11 +1,12 @@
 ﻿using BusinessObject.DTOs.Category;
 using BusinessObject.FacadeService;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace WebAPI.Controllers.Admin
 {
-    [Authorize(Policy = "AdminOnly")]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
     [Route("api/[controller]")]
     [ApiController]
     public partial class AdminController : ControllerBase

@@ -17,9 +17,15 @@ namespace WebClient.Controllers.Admin
         public IActionResult Index()
         {
             var accessToken = HttpContext.Session.GetString("AccessToken");
+            var userRole = HttpContext.Session.GetString("Role");
             if (string.IsNullOrEmpty(accessToken))
             {
                 return RedirectToAction("Login", "Authorize");
+            }
+            if (userRole != "Admin")
+            {
+                TempData["error"] = "You do not have permission to access this page.";
+                return RedirectToAction("Index", "Home");
             }
             return View();
         }
@@ -27,9 +33,15 @@ namespace WebClient.Controllers.Admin
         public IActionResult CategoryList()
         {
             var accessToken = HttpContext.Session.GetString("AccessToken");
+            var userRole = HttpContext.Session.GetString("Role");
             if (string.IsNullOrEmpty(accessToken))
             {
                 return RedirectToAction("Login", "Authorize");
+            }
+            if (userRole != "Admin")
+            {
+                TempData["error"] = "You do not have permission to access this page.";
+                return RedirectToAction("Index", "Home");
             }
             return View();
         }
@@ -52,9 +64,15 @@ namespace WebClient.Controllers.Admin
         public IActionResult CreateCategory()
         {
             var accessToken = HttpContext.Session.GetString("AccessToken");
+            var userRole = HttpContext.Session.GetString("Role");
             if (string.IsNullOrEmpty(accessToken))
             {
                 return RedirectToAction("Login", "Authorize");
+            }
+            if (userRole != "Admin")
+            {
+                TempData["error"] = "You do not have permission to access this page.";
+                return RedirectToAction("Index", "Home");
             }
             return View();
         }
@@ -79,6 +97,17 @@ namespace WebClient.Controllers.Admin
         [HttpGet]
         public async Task<IActionResult> UpdateCategory(int id)
         {
+            var accessToken = HttpContext.Session.GetString("AccessToken");
+            var userRole = HttpContext.Session.GetString("Role");
+            if (string.IsNullOrEmpty(accessToken))
+            {
+                return RedirectToAction("Login", "Authorize");
+            }
+            if (userRole != "Admin")
+            {
+                TempData["error"] = "You do not have permission to access this page.";
+                return RedirectToAction("Index", "Home");
+            }
             var response = await _apiService.GetAsync(
                 $"/api/Admin/GetCategoryById/{id}",
                 isSkip: false

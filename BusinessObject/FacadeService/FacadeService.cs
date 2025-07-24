@@ -1,6 +1,9 @@
 ﻿using AutoMapper;
 using BusinessObject.Services;
 using BusinessObject.Services.Interfaces;
+
+using DataAccess.Repositories.Interfaces;
+
 using DataAccess.UnitOfWork;
 using Microsoft.Extensions.Configuration;
 using Utilities.Email.Interface;
@@ -14,8 +17,12 @@ namespace BusinessObject.FacadeService
         private readonly IEmailQueue _emailQueue;
         private readonly IMapper _mapper;
 
+
+        public IShoppingCartService ShoppingCart{ get; private set; }
+
         public ICategoryService Category { get; private set; }
         public IProductService Product { get; private set; }
+
 
         public FacadeService(
             IUnitOfWork unitOfWork,
@@ -28,6 +35,9 @@ namespace BusinessObject.FacadeService
             _configuration = configuration;
             _emailQueue = emailQueue;
             _mapper = mapper;
+
+            ShoppingCart = new ShoppingCartService(_unitOfWork, _mapper);
+
             Category = new CategoryService(_unitOfWork, _mapper);
             Product = new ProductService(_unitOfWork, _mapper);
         }

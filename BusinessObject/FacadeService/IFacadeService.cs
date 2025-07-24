@@ -7,5 +7,7 @@ namespace BusinessObject.FacadeService
     {
         ICategoryService Category { get; }
         IProductService Product { get; }
+        IShoppingCartService ShoppingCart{ get; }
+
     }
 }
