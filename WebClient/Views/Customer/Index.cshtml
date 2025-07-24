@@ -1,0 +1,79 @@
+﻿@model List<BusinessObject.DTOs.ShoppingCart.ShoppingCartDTO>
+@{
+    ViewData["Title"] = "Giỏ hàng của bạn";
+}
+
+<h2>Giỏ hàng</h2>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Sản phẩm</th>
+            <th>Giá</th>
+            <th>Số lượng</th>
+            <th>Tổng</th>
+            <th>Thao tác</th>
+        </tr>
+    </thead>
+    <tbody id="cartBody">
+        @foreach (var item in Model)
+        {
+            <tr id="item-@item.Id">
+                <td>@item.ProductName</td>
+                <td>@item.Price.ToString("N0") đ</td>
+                <td>
+                    <button onclick="updateQuantity(@item.Id, -1)">-</button>
+                    <span id="count-@item.Id">@item.Count</span>
+                    <button onclick="updateQuantity(@item.Id, 1)">+</button>
+                </td>
+                <td id="total-@item.Id">@((item.Price * item.Count).ToString("N0")) đ</td>
+                <td>
+                    <button class="btn btn-danger btn-sm" onclick="deleteItem(@item.Id)">Xóa</button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@section Scripts {
+    <script>
+        async function updateQuantity(cartItemId, quantity) {
+            const response = await fetch('/CustomerCart/UpdateItem', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    id: cartItemId,
+                    count: quantity
+                })
+            });
+
+            const result = await response.json();
+            if (result.success) {
+                const countSpan = document.getElementById(`count-${cartItemId}`);
+                let count = parseInt(countSpan.textContent) + quantity;
+
+                if (count <= 0) {
+                    document.getElementById(`item-${cartItemId}`).remove();
+                } else {
+                    countSpan.textContent = count;
+                    const price = parseInt(document.getElementById(`total-${cartItemId}`).dataset.price);
+                    const total = price * count;
+                    document.getElementById(`total-${cartItemId}`).textContent = total.toLocaleString() + ' đ';
+                }
+            }
+        }
+
+        async function deleteItem(cartItemId) {
+            const response = await fetch(`/CustomerCart/DeleteItem?id=${cartItemId}`, {
+                method: 'POST'
+            });
+
+            const result = await response.json();
+            if (result.success) {
+                document.getElementById(`item-${cartItemId}`).remove();
+            }
+        }
+    </script>
+}

@@ -34,6 +34,7 @@ namespace BusinessObject.FacadeService
             _unitOfWork = unitOfWork;
             _configuration = configuration;
             _emailQueue = emailQueue;
+            _mapper = mapper;
 
             ShoppingCart = new ShoppingCartService(_unitOfWork, _mapper);
 

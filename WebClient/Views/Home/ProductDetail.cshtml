@@ -112,7 +112,12 @@
 
                     </dl>
                     <hr />
-                    <a asp-action="AddToCart" asp-controller="Customer" asp-route-productId="@Model.Id" class="btn btn-primary shadow-0"> <i class="me-1 fa fa-shopping-basket"></i> Add to cart </a>
+                    @* <a asp-action="AddToCart" asp-controller="Customer" asp-route-productId="@Model.Id" class="btn btn-primary shadow-0"> <i class="me-1 fa fa-shopping-basket">
+
+                    </i> Add to cart </a> *@
+                    <button class="btn btn-primary shadow-0" onclick="addToCart('@Model.Id')">
+                        <i class="me-1 fa fa-shopping-basket"></i> Add to cart
+                    </button>
                 </div>
             </main>
         </div>
@@ -250,6 +255,41 @@
         </div>
     </div>
 </section>
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        async function addToCart(productId) {
+            const response = await fetch('/CustomerCart/AddItem', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    ProductId: productId,
+                    Count: 1
+                })
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Thêm vào giỏ hàng thành công!',
+                    showConfirmButton: false,
+                    timer: 1500
+                });
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Không thể thêm vào giỏ hàng!',
+                    text: 'Vui lòng thử lại.'
+                });
+            }
+        }
+    </script>
+}
+
 <style>
     .pagination {
         margin-top: 20px;
