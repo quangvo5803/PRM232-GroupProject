@@ -42,7 +42,7 @@ namespace BusinessObject.Services
             {
                 var errors = new Dictionary<string, string[]>
                 {
-                    { "Email", new[] { "Email không tồn tại trong hệ thống." } },
+                    { "Email", new[] { "Email does not exist in the system." } },
                 };
                 throw new CustomValidationException(errors);
             }
@@ -75,7 +75,7 @@ namespace BusinessObject.Services
                 {
                     var errors = new Dictionary<string, string[]>
                     {
-                        { "Email", new[] { "Email đã được đăng kí." } },
+                        { "Email", new[] { "Email has been registered." } },
                     };
                     throw new CustomValidationException(errors);
                 }
@@ -91,7 +91,7 @@ namespace BusinessObject.Services
                 {
                     var errors = new Dictionary<string, string[]>
                     {
-                        { "Time", new[] { "Bạn chỉ có thể yêu cầu OTP mới sau 2 phút." } },
+                        { "Time", new[] { "You can only request a new OTP after 2 minutes." } },
                     };
                     throw new CustomValidationException(errors);
                 }
@@ -152,10 +152,7 @@ namespace BusinessObject.Services
                 {
                     {
                         "Email",
-                        new[]
-                        {
-                            "Người dùng không tồn tại hoặc mã OTP đã hết hạn hoặc không chính xác.",
-                        }
+                        new[] { "User does not exist or OTP code is expired or incorrect." }
                     },
                 };
                 throw new CustomValidationException(errors);
@@ -196,7 +193,7 @@ namespace BusinessObject.Services
             {
                 var errors = new Dictionary<string, string[]>
                 {
-                    { "Email", new[] { "Refresh token không hợp lệ hoặc đã hết hạn." } },
+                    { "Email", new[] { "Refresh token is invalid or expired." } },
                 };
                 throw new CustomValidationException(errors);
             }

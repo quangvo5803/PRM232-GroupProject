@@ -113,9 +113,6 @@
 
                     </dl>
                     <hr />
-                    @* <a asp-action="AddToCart" asp-controller="Customer" asp-route-productId="@Model.Id" class="btn btn-primary shadow-0"> <i class="me-1 fa fa-shopping-basket">
-
-                    </i> Add to cart </a> *@
                     <button class="btn btn-primary shadow-0" onclick="addToCart('@Model.Id')">
                         <i class="me-1 fa fa-shopping-basket"></i> Add to cart
                     </button>
@@ -257,13 +254,17 @@
     </div>
 </section>
 @section Scripts {
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
-        const userId = @Html.Raw(Json.Serialize(Context.Session.GetString("UserId")));
-    </script>
-
-    <script>
+        const userId = @Html.Raw(Json.Serialize(Context.Session.GetString("UserId")))
         async function addToCart(productId) {
+            if (!userId) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'You need to login to add to cart',
+                    text: 'Please login to continue.',
+                });
+                return;
+            }
             const response = await fetch('/Customer/AddItem', {
                 method: 'POST',
                 headers: {

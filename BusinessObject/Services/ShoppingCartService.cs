@@ -4,6 +4,7 @@ using BusinessObject.Services.Interfaces;
 using DataAccess.Entities.Application;
 using DataAccess.UnitOfWork;
 using Microsoft.EntityFrameworkCore;
+using Utilities.Exceptions;
 
 namespace BusinessObject.Services
 {
@@ -20,26 +21,28 @@ namespace BusinessObject.Services
 
         public async Task<List<ShoppingCartDTO>> GetCartItemsAsync(Guid userId)
         {
-            var cartItems = await _unitOfWork.ShoppingCart
-                .GetRangeAsync(x => x.UserId == userId, includeProperties: "Product");
+            var cartItems = await _unitOfWork.ShoppingCart.GetRangeAsync(
+                x => x.UserId == userId,
+                includeProperties: "Product,Product.ProductAvatar"
+            );
 
             return _mapper.Map<List<ShoppingCartDTO>>(cartItems);
         }
 
-
         public async Task AddToCartAsync(ShoppingCartCreateRequestDto dto)
         {
-            var existingItem = await _unitOfWork.ShoppingCart
-                .GetAsync(x => x.UserId == dto.UserId && x.ProductId == dto.ProductId);
+            var existingItem = await _unitOfWork.ShoppingCart.GetAsync(x =>
+                x.UserId == dto.UserId && x.ProductId == dto.ProductId
+            );
 
             if (existingItem != null)
             {
-                existingItem.Count += dto.Quantity;
+                existingItem.Quantity += dto.Quantity;
             }
             else
             {
                 var newItem = _mapper.Map<ShoppingCart>(dto);
-                newItem.Count = dto.Quantity;
+                newItem.Quantity = dto.Quantity;
 
                 await _unitOfWork.ShoppingCart.AddAsync(newItem);
             }
@@ -52,15 +55,21 @@ namespace BusinessObject.Services
             var item = await _unitOfWork.ShoppingCart.GetAsync(x => x.Id == dto.Id);
 
             if (item == null)
-                throw new Exception("Không tìm thấy sản phẩm trong giỏ hàng.");
+            {
+                var errors = new Dictionary<string, string[]>
+                {
+                    { "Cart", new[] { "No products found in the cart." } },
+                };
+                throw new CustomValidationException(errors);
+            }
 
-            if (dto.Quantity == -1 && item.Count == 1)
+            if (dto.Quantity == -1 && item.Quantity == 1)
             {
                 _unitOfWork.ShoppingCart.Remove(item);
             }
             else
             {
-                item.Count += dto.Quantity;
+                item.Quantity += dto.Quantity;
             }
 
             await _unitOfWork.SaveAsync();
@@ -71,11 +80,16 @@ namespace BusinessObject.Services
             var item = await _unitOfWork.ShoppingCart.GetAsync(x => x.Id == cartItemId);
 
             if (item == null)
-                throw new Exception("Không tìm thấy sản phẩm trong giỏ hàng.");
+            {
+                var errors = new Dictionary<string, string[]>
+                {
+                    { "Cart", new[] { "No products found in the cart." } },
+                };
+                throw new CustomValidationException(errors);
+            }
 
             _unitOfWork.ShoppingCart.Remove(item);
             await _unitOfWork.SaveAsync();
         }
-
     }
 }

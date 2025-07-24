@@ -1,6 +1,7 @@
 ﻿using BusinessObject.DTOs.ShoppingCart;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using Utilities.Exceptions;
 using WebClient.Services.Interface;
 
 namespace WebClient.Controllers.Customer
@@ -22,10 +23,10 @@ namespace WebClient.Controllers.Customer
                 return RedirectToAction("Login", "Authorize");
             }
 
-            var response = await _apiService.GetAsync($"/api/Customer/{userId}");
+            var response = await _apiService.GetAsync($"/api/Customer/{userId}", isSkip: false);
             if (!response.IsSuccessStatusCode)
             {
-                TempData["Error"] = "Không thể tải giỏ hàng.";
+                await ErrorHandler.HandleValidationErrorAsync(response, TempData);
                 return View(new List<ShoppingCartDTO>());
             }
 
@@ -37,21 +38,32 @@ namespace WebClient.Controllers.Customer
         [HttpPost]
         public async Task<IActionResult> AddItem([FromBody] ShoppingCartCreateRequestDto cartDto)
         {
-            var response = await _apiService.PostAsync("/api/Customer/AddItem", cartDto);
+            var response = await _apiService.PostAsync(
+                "/api/Customer/AddItem",
+                cartDto,
+                isSkip: false
+            );
             return Json(new { success = response.IsSuccessStatusCode });
         }
 
         [HttpPost]
         public async Task<IActionResult> UpdateItem([FromBody] ShoppingCartUpdateRequestDto cartDto)
         {
-            var response = await _apiService.PutAsync("/api/Customer/UpdateItem", cartDto);
+            var response = await _apiService.PutAsync(
+                "/api/Customer/UpdateItem",
+                cartDto,
+                isSkip: false
+            );
             return Json(new { success = response.IsSuccessStatusCode });
         }
 
         [HttpPost]
         public async Task<IActionResult> DeleteItem(int id)
         {
-            var response = await _apiService.DeleteAsync($"/api/Customer/DeleteItem/{id}");
+            var response = await _apiService.DeleteAsync(
+                $"/api/Customer/DeleteItem/{id}",
+                isSkip: false
+            );
             return Json(new { success = response.IsSuccessStatusCode });
         }
     }

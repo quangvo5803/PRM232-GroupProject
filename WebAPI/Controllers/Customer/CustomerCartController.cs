@@ -1,9 +1,12 @@
 ﻿using BusinessObject.DTOs.ShoppingCart;
 using BusinessObject.FacadeService;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace WebAPI.Controllers.Customer
 {
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Customer")]
     [Route("api/[controller]")]
     [ApiController]
     public partial class CustomerController : ControllerBase
@@ -33,7 +36,9 @@ namespace WebAPI.Controllers.Customer
         }
 
         [HttpPut("UpdateItem")]
-        public async Task<IActionResult> UpdateCartItem([FromBody] ShoppingCartUpdateRequestDto cartDto)
+        public async Task<IActionResult> UpdateCartItem(
+            [FromBody] ShoppingCartUpdateRequestDto cartDto
+        )
         {
             if (cartDto == null)
                 return BadRequest("Cart data is required.");

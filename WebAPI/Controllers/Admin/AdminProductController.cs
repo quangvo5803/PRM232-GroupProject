@@ -1,5 +1,4 @@
 using BusinessObject.DTOs.Product;
-using BusinessObject.FacadeService;
 using Microsoft.AspNetCore.Mvc;
 
 namespace WebAPI.Controllers.Admin
