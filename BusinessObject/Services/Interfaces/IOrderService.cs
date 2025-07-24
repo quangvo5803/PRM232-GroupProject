@@ -11,5 +11,6 @@ namespace BusinessObject.Services.Interfaces
         Task<IEnumerable<OrderDto>> GetAllOrderAsync();
         Task<string> CreateVNPayPaymentUrlAsync(OrderCreateRequestDto requestDto, HttpContext context);
         Task<bool> VNPayCallbackAsync(IQueryCollection query);
+        Task<List<CheckOutDto>> CheckOutAsync(Guid userId);
     }
 }

@@ -153,5 +153,13 @@ namespace BusinessObject.Services
         }
 
 
+        public async Task<List<CheckOutDto>> CheckOutAsync(Guid userId)
+        {
+            var checkOut = await _unitOfWork.ShoppingCart
+                .GetRangeAsync(c => c.UserId == userId, includeProperties: "Product,Product.ProductAvatar");
+            var rsMapper = _mapper.Map<List<CheckOutDto>>(checkOut);
+            return rsMapper;
+        }
+
     }
 }

@@ -28,6 +28,14 @@ namespace BusinessObject.Mapping
             CreateMap<OrderDetail, OrderDetailDto>();
             CreateMap<OrderDetailCreateRequestDto, OrderDetail>();
 
+            //CheckOut
+            CreateMap<ShoppingCart, CheckOutDto>()
+            .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Product!.Name))
+            .ForMember(dest => dest.Price, opt => opt.MapFrom(src => src.Product!.Price))
+            .ForMember(dest => dest.ProductAvatar, 
+                opt => opt.MapFrom(src => src.Product!.ProductAvatar != null ? 
+                src.Product.ProductAvatar.ImageUrl : null))
+            .ForMember(dest => dest.Count, opt => opt.MapFrom(src => src.Count));
         }
     }
 }

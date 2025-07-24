@@ -8,16 +8,16 @@ namespace WebAPI.Controllers.Customer
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class CustomerOrderController : ControllerBase
+    public partial class CustomerController : ControllerBase
     {
         private readonly IFacadeService _facadeService;
 
-        public CustomerOrderController(IFacadeService facadeService)
+        public CustomerController(IFacadeService facadeService)
         {
             _facadeService = facadeService;
         }
 
-        [HttpGet]
+        [HttpGet("getallorder")]
         public async Task<IActionResult> GetAllOrder()
         {
             var order = await _facadeService.Order.GetAllOrderAsync();
@@ -25,7 +25,7 @@ namespace WebAPI.Controllers.Customer
         }
 
 
-        [HttpPost]
+        [HttpPost("createorder")]
         public async Task<IActionResult> CreateOrder(OrderCreateRequestDto orderCreate)
         {
             if (orderCreate == null)
@@ -69,7 +69,7 @@ namespace WebAPI.Controllers.Customer
         //    return Ok(new { PaymentUrl = paymentUrl });
         //}
 
-        [HttpGet("vnpay-return")]
+        [HttpGet("vnpayreturn")]
         public async Task<IActionResult> VNPayReturn()
         {
             var result = await _facadeService.Order.VNPayCallbackAsync(Request.Query);
@@ -81,7 +81,7 @@ namespace WebAPI.Controllers.Customer
             return Redirect("https://www.facebook.com/DinhPhuc.Su/");
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("getorderbyid/{id}")]
         public async Task<IActionResult> GetOrderById(int id)
         {
             var order = await _facadeService.Order.GetOrderByIdAsync(id);
@@ -90,6 +90,14 @@ namespace WebAPI.Controllers.Customer
                 return NotFound();
             }
             return Ok(order);
+        }
+
+        [HttpGet("checkout/{userId}")]
+        public async Task<IActionResult> CheckOut(Guid userId)
+        {
+            var request = await _facadeService.Order.CheckOutAsync(userId);
+            if (request == null) return NotFound();
+            return Ok(request);
         }
 
     }
