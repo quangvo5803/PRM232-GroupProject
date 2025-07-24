@@ -4,8 +4,11 @@ using BusinessObject.Services.Interfaces;
 using DataAccess.Entities.Application;
 using DataAccess.UnitOfWork;
 using MailKit.Search;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
+using System.Text;
 using Utilities.Exceptions;
 
 namespace BusinessObject.Services
@@ -14,10 +17,12 @@ namespace BusinessObject.Services
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
-        public OrderService(IUnitOfWork unitOfWork, IMapper mapper)
+        private readonly IVnPayService _vpnPayService;
+        public OrderService(IUnitOfWork unitOfWork, IMapper mapper, IVnPayService vnPayService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
+            _vpnPayService = vnPayService;
         }
 
         public async Task<IEnumerable<OrderDto>> GetAllOrderAsync()
@@ -27,51 +32,110 @@ namespace BusinessObject.Services
             return rsMapper;
         }
 
-
         public async Task<OrderDto> CreateOrderAsync(OrderCreateRequestDto requestDto)
         {
-            if (requestDto.PaymentMethod == "PayByCash")
-            {
-                var rsMapper = _mapper.Map<Order>(requestDto);
-                rsMapper.TotalPrice = 0;
-                rsMapper.OrderDetails = new List<OrderDetail>();
+            var rsMapper = _mapper.Map<Order>(requestDto);
+            rsMapper.TotalPrice = 0;
+            rsMapper.OrderDetails = new List<OrderDetail>();
 
-                foreach (var detailDto in requestDto.OrderDetails)
+            foreach (var detailDto in requestDto.OrderDetails)
+            {
+                var product = await _unitOfWork.Product.GetAsync(p => p.Id == detailDto.ProductId);
+                if (product == null)
                 {
-                    var product = await _unitOfWork.Product.GetAsync(p => p.Id == detailDto.ProductId);
-                    if (product == null)
-                    {
-                        var errors = new Dictionary<string, string[]>
+                    var errors = new Dictionary<string, string[]>
                         {
                             { "Product", new[] { "Product not found." } },
                         };
-                        throw new CustomValidationException(errors);
-                    }
-
-                    var orderDetail = new OrderDetail
-                    {
-                        ProductId = detailDto.ProductId,
-                        Quantity = detailDto.Quantity,
-                        UnitPrice = product.Price
-                    };
-
-                    rsMapper.TotalPrice += orderDetail.Quantity * orderDetail.UnitPrice;
-                    rsMapper.OrderDetails.Add(orderDetail);
+                    throw new CustomValidationException(errors);
                 }
 
-                await _unitOfWork.Order.AddAsync(rsMapper);
-                await _unitOfWork.SaveAsync();
+                var orderDetail = new OrderDetail
+                {
+                    ProductId = detailDto.ProductId,
+                    Quantity = detailDto.Quantity,
+                    UnitPrice = product.Price
+                };
 
-                return _mapper.Map<OrderDto>(rsMapper);
+                rsMapper.TotalPrice += orderDetail.Quantity * orderDetail.UnitPrice;
+                rsMapper.OrderDetails.Add(orderDetail);
             }
-            if (requestDto.PaymentMethod == "VNPay")
-            {
 
+            await _unitOfWork.Order.AddAsync(rsMapper);
+            await _unitOfWork.SaveAsync();
 
-            }
-            
-            return null;
+            return _mapper.Map<OrderDto>(rsMapper);
+
         }
+
+        public async Task<string> CreateVNPayPaymentUrlAsync(OrderCreateRequestDto requestDto, HttpContext context)
+        {
+            var rsMapper = _mapper.Map<Order>(requestDto);
+            rsMapper.TotalPrice = 0;
+            rsMapper.OrderDetails = new List<OrderDetail>();
+
+            foreach (var detailDto in requestDto.OrderDetails)
+            {
+                var product = await _unitOfWork.Product.GetAsync(p => p.Id == detailDto.ProductId);
+                if (product == null)
+                {
+                    var errors = new Dictionary<string, string[]>
+                        {
+                            { "Product", new[] { "Product not found." } },
+                        };
+                    throw new CustomValidationException(errors);
+                }
+
+                var orderDetail = new OrderDetail
+                {
+                    ProductId = detailDto.ProductId,
+                    Quantity = detailDto.Quantity,
+                    UnitPrice = product.Price
+                };
+
+                rsMapper.TotalPrice += orderDetail.Quantity * orderDetail.UnitPrice;
+                rsMapper.OrderDetails.Add(orderDetail);
+            }
+
+            await _unitOfWork.Order.AddAsync(rsMapper);
+            await _unitOfWork.SaveAsync();
+
+            var vnPayRequest = new VnPaymentRequestModel
+            {
+                OrderId = rsMapper.Id,
+                Amount = rsMapper.TotalPrice,
+                CreateDate = DateTime.Now,
+                Description = "Thanh toán VNPay"
+            };
+
+            var url = _vpnPayService.CreatePaymentUrl(context, vnPayRequest, "Buy");
+            return url;
+        }
+
+        public async Task<bool> VNPayCallbackAsync(IQueryCollection query)
+        {
+            var vnResponse = _vpnPayService.PaymentExecute(query);
+
+            if (vnResponse == null || vnResponse.VnPayResponseCode != "00")
+            {
+                if (int.TryParse(vnResponse?.OrderId, out var failOrderId))
+                {
+                    var order = await _unitOfWork.Order.GetAsync(o => o.Id == failOrderId);
+                    if (order != null)
+                    {
+                        _unitOfWork.Order.Remove(order);
+                        await _unitOfWork.SaveAsync();
+                    }   
+                }
+                    
+                return false;
+            }
+
+            
+            return true;
+        }
+
+
 
         public async Task<OrderDto> GetOrderByIdAsync(int id)
         {
@@ -87,5 +151,7 @@ namespace BusinessObject.Services
 
             return _mapper.Map<OrderDto>(order);
         }
+
+
     }
 }

@@ -5,7 +5,11 @@ namespace BusinessObject.Services.Interfaces
 {
     public interface IVnPayService
     {
-        string CreatePaymentUrl(HttpContext context, VnPaymentRequestModel requestModel);
+        string CreatePaymentUrl(
+            HttpContext context,
+            VnPaymentRequestModel requestModel,
+            string type
+        );
         VnPaymentResponseModel PaymentExecute(IQueryCollection query);
     }
 }

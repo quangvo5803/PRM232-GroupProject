@@ -15,9 +15,13 @@ namespace BusinessObject.Services
             _config = config;
         }
 
-        public string CreatePaymentUrl(HttpContext context, VnPaymentRequestModel requestModel)
+        public string CreatePaymentUrl(
+            HttpContext context,
+            VnPaymentRequestModel requestModel,
+            string type
+        )
         {
-            var tick = DateTime.Now.Ticks.ToString();
+            //var tick = DateTime.Now.Ticks.ToString();
 
             var vnpay = new VnPayLibrary();
             vnpay.AddRequestData("vnp_Version", _config["VnPay:Version"]);
@@ -31,10 +35,18 @@ namespace BusinessObject.Services
             vnpay.AddRequestData("vnp_CurrCode", _config["VnPay:CurrCode"]);
             vnpay.AddRequestData("vnp_IpAddr", Utils.GetIpAddress(context));
             vnpay.AddRequestData("vnp_Locale", _config["VnPay:Locale"]);
-            vnpay.AddRequestData("vnp_OrderInfo", requestModel.Order?.Id.ToString() ?? "0");
+            if (type == "Buy")
+            {
+                vnpay.AddRequestData("vnp_OrderInfo", "Order_" + requestModel.OrderId);
+                vnpay.AddRequestData("vnp_ReturnUrl", _config["VnPay:PaymentBackReturnUrl"]);
+            }
+            else
+            {
+                vnpay.AddRequestData("vnp_OrderInfo", "MonthlyFee_" + requestModel.Description);
+                vnpay.AddRequestData("vnp_ReturnUrl", _config["VnPay:MonthlyFeeReturnUrl"]);
+            }
             vnpay.AddRequestData("vnp_OrderType", "other");
-            vnpay.AddRequestData("vnp_ReturnUrl", _config["VnPay:PaymentBackReturnUrl"]);
-            vnpay.AddRequestData("vnp_TxnRef", tick);
+            vnpay.AddRequestData("vnp_TxnRef", requestModel.OrderId.ToString());
             var paymentUrl = vnpay.CreateRequestUrl(
                 _config["VnPay:BaseUrl"],
                 _config["VnPay:HashSecret"]
@@ -42,7 +54,6 @@ namespace BusinessObject.Services
 
             return paymentUrl;
         }
-
         public VnPaymentResponseModel PaymentExecute(IQueryCollection query)
         {
             var vnpay = new VnPayLibrary();
