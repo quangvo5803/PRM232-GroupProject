@@ -2,6 +2,7 @@
 using BusinessObject.DTOs.Orders;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System.Net.Http;
 using System.Text;
 using WebClient.Services.Interface;
@@ -40,7 +41,14 @@ namespace WebClient.Controllers.Customer
         [HttpPost]
         public async Task<IActionResult> ProcessPayment(OrderCreateRequestDto orderDto)
         {
-            var userId = HttpContext.Session.GetString("UserId");
+            var userIdStr = HttpContext.Session.GetString("UserId");
+
+            if (string.IsNullOrEmpty(userIdStr) || !Guid.TryParse(userIdStr, out Guid userId))
+            {
+                TempData["error"] = "Session hết hạn hoặc không hợp lệ.";
+                return RedirectToAction("Login", "Authorize");
+            }
+            orderDto.UserId = userId;
             if (!ModelState.IsValid)
             {
                 TempData["error"] = "Invalid input data.";
@@ -58,14 +66,14 @@ namespace WebClient.Controllers.Customer
             if (orderDto.PaymentMethod == "VNPay")
             {
                 var responseBody = await response.Content.ReadAsStringAsync();
-                var result = JsonConvert.DeserializeObject<dynamic>(responseBody);
+                var result = JsonConvert.DeserializeObject<JObject>(responseBody);
 
-                string paymentUrl = result!.PaymentUrl;
-                return Redirect(paymentUrl); // Điều hướng đến trang VNPay
+                string? paymentUrl = (string?)result["paymentUrl"];
+                
+                return Redirect(paymentUrl!);
             }
 
             TempData["success"] = "Payment successfully.";
-            // Nếu là thanh toán tiền mặt thì chuyển về trang cảm ơn đơn giản
             return RedirectToAction("Profile");
         }
 

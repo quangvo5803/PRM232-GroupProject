@@ -30,6 +30,7 @@ namespace BusinessObject.Mapping
 
             //CheckOut
             CreateMap<ShoppingCart, CheckOutDto>()
+            .ForMember(dest => dest.ProductId, opt => opt.MapFrom(src => src.ProductId))
             .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Product!.Name))
             .ForMember(dest => dest.Price, opt => opt.MapFrom(src => src.Product!.Price))
             .ForMember(dest => dest.ProductAvatar, 

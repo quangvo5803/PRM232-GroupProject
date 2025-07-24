@@ -130,8 +130,6 @@ namespace BusinessObject.Services
                     
                 return false;
             }
-
-            
             return true;
         }
 

@@ -46,10 +46,6 @@ namespace WebAPI.Controllers.Customer
 
             if (orderCreate.PaymentMethod == "VNPay")
             {
-                if (orderCreate.PaymentMethod != "VNPay")
-                {
-                    return BadRequest("Invalid payment method. Use 'VNPay' only.");
-                }
                 var paymentUrl = await _facadeService.Order.CreateVNPayPaymentUrlAsync(orderCreate, HttpContext);
                 return Ok(new { PaymentUrl = paymentUrl });
             }
@@ -57,17 +53,6 @@ namespace WebAPI.Controllers.Customer
             return BadRequest("Payment Fail");
         }
 
-        //[HttpPost("create-vnpay")]
-        //public async Task<IActionResult> CreateVNPayOrder([FromBody] OrderCreateRequestDto requestDto)
-        //{
-        //    if (requestDto.PaymentMethod != "VNPay")
-        //    {
-        //        return BadRequest("Invalid payment method. Use 'VNPay' only.");
-        //    }
-
-        //    var paymentUrl = await _facadeService.Order.CreateVNPayPaymentUrlAsync(requestDto, HttpContext);
-        //    return Ok(new { PaymentUrl = paymentUrl });
-        //}
 
         [HttpGet("vnpayreturn")]
         public async Task<IActionResult> VNPayReturn()
@@ -75,7 +60,7 @@ namespace WebAPI.Controllers.Customer
             var result = await _facadeService.Order.VNPayCallbackAsync(Request.Query);
             if (result)
             {
-                return Redirect("https://www.facebook.com/"); 
+                return Redirect("https://localhost:7295/"); 
             }
 
             return Redirect("https://www.facebook.com/DinhPhuc.Su/");
