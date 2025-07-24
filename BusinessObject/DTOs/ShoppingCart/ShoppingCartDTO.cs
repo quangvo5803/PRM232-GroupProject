@@ -13,5 +13,7 @@
         public int Count { get; set; }
 
         public Guid UserId { get; set; }
+
+        public string? ProductAvatar { get; set; }
     }
 }

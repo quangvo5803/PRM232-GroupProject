@@ -5,11 +5,11 @@ using WebClient.Services.Interface;
 
 namespace WebClient.Controllers.Customer
 {
-    public class CustomerCartController : Controller
+    public class CustomerController : Controller
     {
         private readonly IApiService _apiService;
 
-        public CustomerCartController(IApiService apiService)
+        public CustomerController(IApiService apiService)
         {
             _apiService = apiService;
         }

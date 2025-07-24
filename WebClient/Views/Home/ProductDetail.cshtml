@@ -259,7 +259,7 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         async function addToCart(productId) {
-            const response = await fetch('/CustomerCart/AddItem', {
+            const response = await fetch('/Customer/AddItem', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
