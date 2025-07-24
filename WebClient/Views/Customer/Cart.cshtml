@@ -30,11 +30,11 @@
                                 <div class="d-flex align-items-center">
                                     <div class="input-group input-group-sm me-3" style="width: 120px;">
                                         <button class="btn btn-outline-secondary decrease-quantity" type="button">-</button>
-                                        <input type="text" class="form-control text-center quantity" value="@item.Count" readonly />
+                                        <input type="text" class="form-control text-center quantity" value="@item.Quantity" readonly />
                                         <button class="btn btn-outline-secondary increase-quantity" type="button">+</button>
                                     </div>
                                     <div>
-                                        <h5 class="text-primary mb-0 item-total">@((item.Price * item.Count).ToString("C", new CultureInfo("vi-VN")))</h5>
+                                        <h5 class="text-primary mb-0 item-total" data-price="@item.Price">@((item.Price * item.Quantity).ToString("C", new CultureInfo("vi-VN")))</h5>
                                         <small class="text-muted">@item.Price.ToString("C", new CultureInfo("vi-VN")) / per item</small>
                                     </div>
                                 </div>
@@ -53,7 +53,7 @@
                         <div class="d-flex justify-content-between mb-3">
                             <strong>Total Price:</strong>
                             <strong class="total-price">
-                                @(Model.Sum(item => item.Price * item.Count).ToString("C", new CultureInfo("vi-VN")))
+                                @(Model.Sum(item => item.Price * item.Quantity).ToString("C", new CultureInfo("vi-VN")))
                             </strong>
                         </div>
                         <a asp-action="Checkout" asp-controller="Customer" class="btn btn-success w-100 mb-2">Make Purchase</a>
@@ -67,65 +67,62 @@
 
 @section Scripts {
     <script>
-        document.querySelectorAll('.increase-quantity').forEach(button => {
-            button.addEventListener('click', async (event) => {
+                document.querySelectorAll('.increase-quantity').forEach(button => {
+                button.addEventListener('click', async (event) => {
                 const cartItem = event.currentTarget.closest('.cart-item');
                 const cartId = cartItem.dataset.id;
-                const productId = cartItem.dataset.productid;
                 const quantityInput = cartItem.querySelector('.quantity');
                 const itemTotal = cartItem.querySelector('.item-total');
 
-                const newCount = parseInt(quantityInput.value) + 1;
-                const response = await fetch('/CustomerCart/UpdateItem', {
+                const newQuantity = parseInt(quantityInput.value) + 1;
+                const response = await fetch('/Customer/UpdateItem', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ Id: cartId, ProductId: productId, Count: newCount })
+                    body: JSON.stringify({ Id: cartId, Quantity: newQuantity })
                 });
 
                 const result = await response.json();
                 if (result.success) {
-                    quantityInput.value = newCount;
+                    quantityInput.value = newQuantity;
                     const price = parseFloat(itemTotal.dataset.price);
-                    itemTotal.textContent = (price * newCount).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
+                    itemTotal.textContent = (price * newQuantity).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
                     updateTotalPrice();
                 }
             });
         });
 
-        document.querySelectorAll('.decrease-quantity').forEach(button => {
+            document.querySelectorAll('.decrease-quantity').forEach(button => {
             button.addEventListener('click', async (event) => {
                 const cartItem = event.currentTarget.closest('.cart-item');
                 const cartId = cartItem.dataset.id;
-                const productId = cartItem.dataset.productid;
                 const quantityInput = cartItem.querySelector('.quantity');
                 const itemTotal = cartItem.querySelector('.item-total');
 
                 const current = parseInt(quantityInput.value);
                 if (current <= 1) return;
-
-                const newCount = current - 1;
-                const response = await fetch('/CustomerCart/UpdateItem', {
+                    const newQuantity = current - 1;
+                    const response = await fetch('/Customer/UpdateItem', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ Id: cartId, ProductId: productId, Count: newCount })
+                    body: JSON.stringify({ Id: cartId, Quantity: newQuantity })
                 });
 
-                const result = await response.json();
+                    const result = await response.json();
                 if (result.success) {
-                    quantityInput.value = newCount;
+                    quantityInput.value = newQuantity;
                     const price = parseFloat(itemTotal.dataset.price);
-                    itemTotal.textContent = (price * newCount).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
+                    itemTotal.textContent = (price * newQuantity).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
                     updateTotalPrice();
                 }
             });
         });
 
-        document.querySelectorAll('.remove-item').forEach(button => {
+            document.querySelectorAll('.remove-item').forEach(button => {
             button.addEventListener('click', async (event) => {
                 const cartItem = event.currentTarget.closest('.cart-item');
                 const cartId = cartItem.dataset.id;
 
-                const response = await fetch(`/CustomerCart/DeleteItem/${cartId}`, {
+                const response = await fetch(`/Customer/DeleteItem/${cartId}`, {
                     method: 'POST'
                 });
 
@@ -135,18 +132,19 @@
                     updateTotalPrice();
                 }
             });
-        });
 
-        function updateTotalPrice() {
+        });
+            function updateTotalPrice() {
             let total = 0;
             document.querySelectorAll('.cart-item').forEach(item => {
                 const quantity = parseInt(item.querySelector('.quantity').value);
-                const price = parseFloat(item.querySelector('.item-total').textContent.replace(/[^\d]/g, '')) / 100;
-                total += price;
+                const price = parseFloat(item.querySelector('.item-total').dataset.price);
+                total += quantity * price;
             });
 
             document.querySelector('.total-price').textContent =
                 total.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
         }
+
     </script>
 }

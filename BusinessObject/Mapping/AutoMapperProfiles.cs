@@ -18,8 +18,17 @@ namespace BusinessObject.Mapping
 
             // Map ShopppingCart to ShopppingCartDTO
             CreateMap<ShoppingCart, ShoppingCartDTO>()
-                .ForMember(dest => dest.ProductName, opt => opt.MapFrom(src => src.Product.Name))
-                .ForMember(dest => dest.Price, opt => opt.MapFrom(src => src.Product.Price));
+            .ForMember(dest => dest.ProductName, opt => opt.MapFrom(src => src.Product.Name))
+            .ForMember(dest => dest.Price, opt => opt.MapFrom(src => src.Product.Price))
+            .ForMember(
+                dest => dest.ProductAvatar,
+                opt =>
+                    opt.MapFrom(src =>
+                        src.Product.ProductAvatar != null
+                            ? src.Product.ProductAvatar.ImageUrl
+                            : null
+                    )
+            );
 
             CreateMap<ShoppingCartCreateRequestDto, ShoppingCart>();
             CreateMap<ShoppingCartUpdateRequestDto, ShoppingCart>();

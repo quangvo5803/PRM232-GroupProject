@@ -21,29 +21,25 @@ namespace BusinessObject.Services
         public async Task<List<ShoppingCartDTO>> GetCartItemsAsync(Guid userId)
         {
             var cartItems = await _unitOfWork.ShoppingCart
-          .GetAsync(x => x.UserId == userId);
+                .GetRangeAsync(x => x.UserId == userId, includeProperties: "Product");
 
             return _mapper.Map<List<ShoppingCartDTO>>(cartItems);
         }
 
-        public async Task AddToCartAsync(Guid userId, int productId, int quantity)
+
+        public async Task AddToCartAsync(ShoppingCartCreateRequestDto dto)
         {
-            var existingItem = await _unitOfWork.ShoppingCart.GetAsync(
-                x => x.UserId == userId && x.ProductId == productId
-            );
+            var existingItem = await _unitOfWork.ShoppingCart
+                .GetAsync(x => x.UserId == dto.UserId && x.ProductId == dto.ProductId);
 
             if (existingItem != null)
             {
-                existingItem.Count += quantity;
+                existingItem.Count += dto.Quantity;
             }
             else
             {
-                var newItem = new ShoppingCart
-                {
-                    UserId = userId,
-                    ProductId = productId,
-                    Count = quantity
-                };
+                var newItem = _mapper.Map<ShoppingCart>(dto);
+                newItem.Count = dto.Quantity;
 
                 await _unitOfWork.ShoppingCart.AddAsync(newItem);
             }
@@ -51,17 +47,21 @@ namespace BusinessObject.Services
             await _unitOfWork.SaveAsync();
         }
 
-        public async Task UpdateCartItemAsync(int cartItemId, int quantity)
+        public async Task UpdateCartItemAsync(ShoppingCartUpdateRequestDto dto)
         {
-            var item = await _unitOfWork.ShoppingCart.GetAsync(x => x.Id == cartItemId);
+            var item = await _unitOfWork.ShoppingCart.GetAsync(x => x.Id == dto.Id);
 
             if (item == null)
                 throw new Exception("Không tìm thấy sản phẩm trong giỏ hàng.");
 
-            if (quantity == -1 && item.Count == 1)
+            if (dto.Quantity == -1 && item.Count == 1)
+            {
                 _unitOfWork.ShoppingCart.Remove(item);
+            }
             else
-                item.Count += quantity;
+            {
+                item.Count += dto.Quantity;
+            }
 
             await _unitOfWork.SaveAsync();
         }
@@ -76,5 +76,6 @@ namespace BusinessObject.Services
             _unitOfWork.ShoppingCart.Remove(item);
             await _unitOfWork.SaveAsync();
         }
+
     }
 }

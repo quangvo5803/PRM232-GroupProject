@@ -10,7 +10,7 @@
 
         public double Price { get; set; }
 
-        public int Count { get; set; }
+        public int Quantity { get; set; }
 
         public Guid UserId { get; set; }
 

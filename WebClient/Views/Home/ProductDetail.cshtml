@@ -1,5 +1,6 @@
 ﻿@using System.Globalization
 @model ProductDto
+
 @{
     ViewData["Title"] = "Product Detail";
     // var feedbacks = ViewBag.Feedbacks as List<Feedback>;
@@ -258,6 +259,10 @@
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
+        const userId = @Html.Raw(Json.Serialize(Context.Session.GetString("UserId")));
+    </script>
+
+    <script>
         async function addToCart(productId) {
             const response = await fetch('/Customer/AddItem', {
                 method: 'POST',
@@ -265,8 +270,9 @@
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    ProductId: productId,
-                    Count: 1
+                ProductId: productId,
+                Quantity: 1,
+                UserId: userId
                 })
             });
 
