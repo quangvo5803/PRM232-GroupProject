@@ -1,0 +1,91 @@
+﻿using AutoMapper;
+using BusinessObject.DTOs.Orders;
+using BusinessObject.Services.Interfaces;
+using DataAccess.Entities.Application;
+using DataAccess.UnitOfWork;
+using MailKit.Search;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Utilities.Exceptions;
+
+namespace BusinessObject.Services
+{
+    public class OrderService : IOrderService
+    {
+        private readonly IUnitOfWork _unitOfWork;
+        private readonly IMapper _mapper;
+        public OrderService(IUnitOfWork unitOfWork, IMapper mapper)
+        {
+            _unitOfWork = unitOfWork;
+            _mapper = mapper;
+        }
+
+        public async Task<IEnumerable<OrderDto>> GetAllOrderAsync()
+        {
+            var order = await _unitOfWork.Order.GetAllAsync(includeProperties: "OrderDetails");
+            var rsMapper = _mapper.Map<IEnumerable<OrderDto>>(order);
+            return rsMapper;
+        }
+
+
+        public async Task<OrderDto> CreateOrderAsync(OrderCreateRequestDto requestDto)
+        {
+            if (requestDto.PaymentMethod == "PayByCash")
+            {
+                var rsMapper = _mapper.Map<Order>(requestDto);
+                rsMapper.TotalPrice = 0;
+                rsMapper.OrderDetails = new List<OrderDetail>();
+
+                foreach (var detailDto in requestDto.OrderDetails)
+                {
+                    var product = await _unitOfWork.Product.GetAsync(p => p.Id == detailDto.ProductId);
+                    if (product == null)
+                    {
+                        var errors = new Dictionary<string, string[]>
+                        {
+                            { "Product", new[] { "Product not found." } },
+                        };
+                        throw new CustomValidationException(errors);
+                    }
+
+                    var orderDetail = new OrderDetail
+                    {
+                        ProductId = detailDto.ProductId,
+                        Quantity = detailDto.Quantity,
+                        UnitPrice = product.Price
+                    };
+
+                    rsMapper.TotalPrice += orderDetail.Quantity * orderDetail.UnitPrice;
+                    rsMapper.OrderDetails.Add(orderDetail);
+                }
+
+                await _unitOfWork.Order.AddAsync(rsMapper);
+                await _unitOfWork.SaveAsync();
+
+                return _mapper.Map<OrderDto>(rsMapper);
+            }
+            if (requestDto.PaymentMethod == "VNPay")
+            {
+
+
+            }
+            
+            return null;
+        }
+
+        public async Task<OrderDto> GetOrderByIdAsync(int id)
+        {
+            var order = await _unitOfWork.Order.GetAsync(o => o.Id == id, includeProperties: "OrderDetails");
+            if (order == null)
+            {
+                var errors = new Dictionary<string, string[]>
+                {
+                    { "Order", new[] { "Order not found." } },
+                };
+                throw new CustomValidationException(errors);
+            }
+
+            return _mapper.Map<OrderDto>(order);
+        }
+    }
+}

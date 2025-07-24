@@ -15,6 +15,7 @@ namespace BusinessObject.FacadeService
         private readonly IMapper _mapper;
 
         public ICategoryService Category { get; private set; }
+        public IOrderService Order { get; private set; }
 
         public FacadeService(
             IUnitOfWork unitOfWork,
@@ -28,6 +29,7 @@ namespace BusinessObject.FacadeService
             _emailQueue = emailQueue;
             _mapper = mapper;
             Category = new CategoryService(_unitOfWork, _mapper);
+            Order = new OrderService(_unitOfWork, _mapper);
         }
     }
 }

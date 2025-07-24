@@ -24,6 +24,8 @@ namespace DataAccess.Entities.Application
 
         public string? ShippingAddress { get; set; }
         public string? PhoneNumber { get; set; }
+
+        public ICollection<OrderDetail> OrderDetails { get; set; } = new List<OrderDetail>();
     }
 
     public enum OrderStatus
@@ -31,5 +33,11 @@ namespace DataAccess.Entities.Application
         Pending,
         Completed,
         Cancelled,
+    }
+
+    public enum PaymentMethod
+    {
+        PayByCash,
+        VNPay
     }
 }
