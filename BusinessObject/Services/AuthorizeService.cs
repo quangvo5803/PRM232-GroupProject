@@ -5,6 +5,7 @@ using BusinessObject.DTOs.Authorize;
 using BusinessObject.Services.Interfaces;
 using DataAccess.Entities.Authorize;
 using DataAccess.Repositories.Interfaces;
+using Google.Apis.Auth;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -41,7 +42,7 @@ namespace BusinessObject.Services
             {
                 var errors = new Dictionary<string, string[]>
                 {
-                    { "Email", new[] { "Email không tồn tại trong hệ thống." } },
+                    { "Email", new[] { "Email does not exist in the system." } },
                 };
                 throw new CustomValidationException(errors);
             }
@@ -74,7 +75,7 @@ namespace BusinessObject.Services
                 {
                     var errors = new Dictionary<string, string[]>
                     {
-                        { "Email", new[] { "Email đã được đăng kí." } },
+                        { "Email", new[] { "Email has been registered." } },
                     };
                     throw new CustomValidationException(errors);
                 }
@@ -90,7 +91,7 @@ namespace BusinessObject.Services
                 {
                     var errors = new Dictionary<string, string[]>
                     {
-                        { "Time", new[] { "Bạn chỉ có thể yêu cầu OTP mới sau 2 phút." } },
+                        { "Time", new[] { "You can only request a new OTP after 2 minutes." } },
                     };
                     throw new CustomValidationException(errors);
                 }
@@ -151,10 +152,7 @@ namespace BusinessObject.Services
                 {
                     {
                         "Email",
-                        new[]
-                        {
-                            "Người dùng không tồn tại hoặc mã OTP đã hết hạn hoặc không chính xác.",
-                        }
+                        new[] { "User does not exist or OTP code is expired or incorrect." }
                     },
                 };
                 throw new CustomValidationException(errors);
@@ -195,7 +193,7 @@ namespace BusinessObject.Services
             {
                 var errors = new Dictionary<string, string[]>
                 {
-                    { "Email", new[] { "Refresh token không hợp lệ hoặc đã hết hạn." } },
+                    { "Email", new[] { "Refresh token is invalid or expired." } },
                 };
                 throw new CustomValidationException(errors);
             }
@@ -217,6 +215,67 @@ namespace BusinessObject.Services
                 Role = (await _userManager.GetRolesAsync(user)).FirstOrDefault() ?? string.Empty,
                 AccessToken = newAccessToken,
                 RefreshToken = newRefreshToken,
+                AccessTokenExpiresAt = DateTime.UtcNow.AddMinutes(30),
+            };
+        }
+
+        public async Task<TokenResponseDto> LoginWithGoogleAsync(string idToken)
+        {
+            GoogleJsonWebSignature.Payload payload;
+
+            try
+            {
+                payload = await GoogleJsonWebSignature.ValidateAsync(idToken);
+            }
+            catch (Exception ex)
+            {
+                var errors = new Dictionary<string, string[]>
+                {
+                    { "Google", new[] { "Login With Google Failed: " + ex.Message } },
+                };
+                throw new CustomValidationException(errors);
+            }
+
+            var user = await _userManager.Users.FirstOrDefaultAsync(u => u.Email == payload.Email);
+            if (user == null)
+            {
+                user = new ApplicationUser
+                {
+                    UserName = payload.Email,
+                    FullName = payload.Name,
+                    Email = payload.Email,
+                    EmailConfirmed = true,
+                };
+                await _userManager.CreateAsync(user);
+                await _userManager.AddToRoleAsync(user, "Customer");
+            }
+            else if (!user.EmailConfirmed)
+            {
+                user.EmailConfirmed = true;
+                await _userManager.UpdateAsync(user);
+            }
+
+            var accessToken = await GenerateToken(user);
+            var refreshToken = GenerateRefeshToken();
+            var rt = new RefreshToken
+            {
+                Token = refreshToken,
+                UserId = user.Id,
+                ExpiresAt = DateTime.UtcNow.AddDays(7),
+            };
+            var token = await _refreshTokenRepository.GetByUserIdAsync(user.Id);
+            if (token != null)
+            {
+                await _refreshTokenRepository.DeleteAsync(token);
+            }
+            await _refreshTokenRepository.AddAsync(rt);
+            return new TokenResponseDto
+            {
+                UserId = user.Id,
+                Email = user.Email ?? string.Empty,
+                Role = (await _userManager.GetRolesAsync(user)).FirstOrDefault() ?? string.Empty,
+                AccessToken = accessToken,
+                RefreshToken = refreshToken,
                 AccessTokenExpiresAt = DateTime.UtcNow.AddMinutes(30),
             };
         }

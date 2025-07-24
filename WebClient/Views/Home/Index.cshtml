@@ -1,12 +1,14 @@
-﻿@using DataAccess.Entities.Application
-@using System.Globalization
-@model IEnumerable<Product>
+﻿@using System.Globalization
+@model IEnumerable<ProductDto>
 @{
+    var randomFoodItems = new List<ProductDto>();
+    var randomDrinkItems = new List<ProductDto>();
+    var randomComboItems = new List<ProductDto>();
     if(Model != null && Model.Any())
     {
-        var randomFoodItems = Model.Where(p => p.Category?.Name == "Food").OrderBy(x => Guid.NewGuid()).Take(8).ToList();
-        var randomDrinkItems = Model.Where(p => p.Category?.Name == "Drink").OrderBy(x => Guid.NewGuid()).Take(8).ToList();
-        var randomComboItems = Model.Where(p => p.Category?.Name == "Combo").OrderBy(x => Guid.NewGuid()).Take(8).ToList();
+         randomFoodItems = Model.Where(p => p.Category?.Name == "Food").OrderBy(x => Guid.NewGuid()).Take(8).ToList();
+         randomDrinkItems = Model.Where(p => p.Category?.Name == "Drink").OrderBy(x => Guid.NewGuid()).Take(8).ToList();
+         randomComboItems = Model.Where(p => p.Category?.Name == "Combo").OrderBy(x => Guid.NewGuid()).Take(8).ToList();
     };
 }
 
@@ -89,19 +91,19 @@
                 <div class="row g-3">
                     <div class="col-6 text-start">
                         <img class="img-fluid rounded w-100 wow zoomIn" data-wow-delay="0.1s"
-                             src="img/about-1.jpg">
+                             src="/img/about-1.jpg">
                     </div>
                     <div class="col-6 text-start">
-                        <img class="img-fluid rounded w-75 wow zoomIn" data-wow-delay="0.3s"
-                             src="img/about-2.jpg" style="margin-top: 25%;">
+                        <img class="/img-fluid rounded w-75 wow zoomIn" data-wow-delay="0.3s"
+                             src="/img/about-2.jpg" style="margin-top: 25%;">
                     </div>
                     <div class="col-6 text-end">
                         <img class="img-fluid rounded w-75 wow zoomIn" data-wow-delay="0.5s"
-                             src="img/about-3.jpg">
+                             src="/img/about-3.jpg">
                     </div>
                     <div class="col-6 text-end">
                         <img class="img-fluid rounded w-100 wow zoomIn" data-wow-delay="0.7s"
-                             src="img/about-4.jpg">
+                             src="/img/about-4.jpg">
                     </div>
                 </div>
             </div>
@@ -187,7 +189,7 @@
             </li>
         </ul>
         <!-- Food Menu -->
-        @* <div class="tab-content">
+        <div class="tab-content">
             <div id="food" class="tab-pane fade show active p-0">
                 <div class="row g-4">
                     @foreach (var food in randomFoodItems)
@@ -196,9 +198,9 @@
                             <a asp-action="ProductDetail" asp-controller="Home" asp-route-id="@food.Id">
                                 <div class="d-flex align-items-center">
                                     <img class="flex-shrink-0 img-fluid rounded"
-                                         src="@(string.IsNullOrEmpty(food.ProductAvatar?.ImageUrl) ?
+                                         src="@(string.IsNullOrEmpty(food.ProductAvatar) ?
                                                     "https://upload.wikimedia.org/wikipedia/commons/1/14/No_Image_Available.jpg"
-                                                    : $"{food.ProductAvatar.ImageUrl}")"
+                                                    : $"{food.ProductAvatar}")"
                                          alt="Product Image"
                                          style="width: 80px; height:80px;">
                                     <div class="w-100 d-flex flex-column text-start ps-4">
@@ -231,9 +233,9 @@
                             <a asp-action="ProductDetail" asp-controller="Home" asp-route-id="@drink.Id">
                                 <div class="d-flex align-items-center">
                                     <img class="flex-shrink-0 img-fluid rounded"
-                                         src="@(string.IsNullOrEmpty(drink.ProductAvatar?.ImageUrl) ?
+                                         src="@(string.IsNullOrEmpty(drink.ProductAvatar) ?
                                                     "https://upload.wikimedia.org/wikipedia/commons/1/14/No_Image_Available.jpg"
-                                                    : $"{drink.ProductAvatar.ImageUrl}")"
+                                                    : $"{drink.ProductAvatar}")"
                                          alt="Product Image"
                                          style="width: 80px; height:80px;">
                                     <div class="w-100 d-flex flex-column text-start ps-4">
@@ -264,9 +266,9 @@
                             <a asp-action="ProductDetail" asp-controller="Home" asp-route-id="@combo.Id">
                                 <div class="d-flex align-items-center">
                                     <img class="flex-shrink-0 img-fluid rounded"
-                                         src="@(string.IsNullOrEmpty(combo.ProductAvatar?.ImageUrl) ?
+                                         src="@(string.IsNullOrEmpty(combo.ProductAvatar) ?
                                                     "https://upload.wikimedia.org/wikipedia/commons/1/14/No_Image_Available.jpg"
-                                                    : $"{combo.ProductAvatar.ImageUrl}")"
+                                                    : $"{combo.ProductAvatar}")"
                                          alt="Product Image"
                                          style="width: 80px; height:80px;">
                                     <div class="w-100 d-flex flex-column text-start ps-4">
@@ -286,7 +288,7 @@
                         </div>
                     }
                 </div>
-            </div> *@
+            </div>
 
             <div class="text-center mt-4">
                 <a class="btn btn-primary show-more" asp-action="Menu" asp-controller="Home">Show More</a>
@@ -311,7 +313,7 @@
                     diam
                 </p>
                 <div class="d-flex align-items-center">
-                    <img class="img-fluid flex-shrink-0 rounded-circle" src="img/testimonial-1.jpg"
+                    <img class="img-fluid flex-shrink-0 rounded-circle" src="/img/testimonial-1.jpg"
                          style="width: 50px; height: 50px;">
                     <div class="ps-3">
                         <h5 class="mb-1">Client Name</h5>
@@ -326,7 +328,7 @@
                     diam
                 </p>
                 <div class="d-flex align-items-center">
-                    <img class="img-fluid flex-shrink-0 rounded-circle" src="img/testimonial-2.jpg"
+                    <img class="img-fluid flex-shrink-0 rounded-circle" src="/img/testimonial-2.jpg"
                          style="width: 50px; height: 50px;">
                     <div class="ps-3">
                         <h5 class="mb-1">Client Name</h5>
@@ -341,7 +343,7 @@
                     diam
                 </p>
                 <div class="d-flex align-items-center">
-                    <img class="img-fluid flex-shrink-0 rounded-circle" src="img/testimonial-3.jpg"
+                    <img class="img-fluid flex-shrink-0 rounded-circle" src="/img/testimonial-3.jpg"
                          style="width: 50px; height: 50px;">
                     <div class="ps-3">
                         <h5 class="mb-1">Client Name</h5>
@@ -356,7 +358,7 @@
                     diam
                 </p>
                 <div class="d-flex align-items-center">
-                    <img class="img-fluid flex-shrink-0 rounded-circle" src="img/testimonial-4.jpg"
+                    <img class="img-fluid flex-shrink-0 rounded-circle" src="/img/testimonial-4.jpg"
                          style="width: 50px; height: 50px;">
                     <div class="ps-3">
                         <h5 class="mb-1">Client Name</h5>

@@ -116,6 +116,34 @@ namespace WebClient.Controllers
             }
         }
 
+        [HttpPost]
+        public async Task<IActionResult> GoogleLogin([FromBody] GoogleLoginRequestDto dto)
+        {
+            var response = await _apiService.PostAsync("/api/Authorize/google-login", dto);
+            if (!response.IsSuccessStatusCode)
+            {
+                return BadRequest(new { success = false, message = "Google login failed" });
+            }
+
+            var token = await response.Content.ReadFromJsonAsync<TokenResponseDto>();
+            if (token == null)
+            {
+                return BadRequest(new { success = false, message = "Invalid token" });
+            }
+
+            HttpContext.Session.SetString("UserId", token.UserId);
+            HttpContext.Session.SetString("Email", token.Email);
+            HttpContext.Session.SetString("Role", token.Role);
+            HttpContext.Session.SetString("AccessToken", token.AccessToken);
+            HttpContext.Session.SetString("RefreshToken", token.RefreshToken);
+            HttpContext.Session.SetString(
+                "AccessTokenExpiresAt",
+                token.AccessTokenExpiresAt.ToString("O")
+            );
+
+            return Ok(new { success = true, role = token.Role });
+        }
+
         public IActionResult Logout()
         {
             HttpContext.Session.Clear();

@@ -42,5 +42,12 @@ namespace WebAPI.Controllers
             var tokens = await _authorizeService.RefreshTokenAsync(dto.RefreshToken);
             return Ok(tokens);
         }
+
+        [HttpPost("google-login")]
+        public async Task<IActionResult> GoogleLogin([FromBody] GoogleLoginRequestDto dto)
+        {
+            var result = await _authorizeService.LoginWithGoogleAsync(dto.IdToken);
+            return Ok(result);
+        }
     }
 }

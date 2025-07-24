@@ -1,4 +1,4 @@
-using System.Security.Claims;
+﻿using System.Security.Claims;
 using System.Text;
 using BusinessObject.FacadeService;
 using BusinessObject.Mapping;
@@ -40,7 +40,10 @@ namespace WebAPI
                     builder.Configuration.GetConnectionString("AuthorizeConnection")
                 )
             );
-
+            builder
+                .Services.AddIdentity<ApplicationUser, IdentityRole>()
+                .AddEntityFrameworkStores<AuthorizeDbContext>()
+                .AddDefaultTokenProviders();
             builder
                 .Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>
@@ -51,22 +54,14 @@ namespace WebAPI
                         ValidateAudience = true,
                         ValidateLifetime = true,
                         ValidateIssuerSigningKey = true,
-                        ValidIssuer = builder.Configuration["Jwt:Issuer"],
-                        ValidAudience = builder.Configuration["Jwt:Audience"],
+                        ValidIssuer = builder.Configuration["JWT:Issuer"],
+                        ValidAudience = builder.Configuration["JWT:Audience"],
                         IssuerSigningKey = new SymmetricSecurityKey(
-                            Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"])
+                            Encoding.UTF8.GetBytes(builder.Configuration["JWT:Key"])
                         ),
                         RoleClaimType = ClaimTypes.Role,
                     };
                 });
-
-            builder.Services.AddAuthorization(options =>
-            {
-                options.AddPolicy("AdminOnly", policy => policy.RequireRole("Admin"));
-                options.AddPolicy("CustomerOnly", policy => policy.RequireRole("Customer"));
-                options.AddPolicy("RestaurantOnly", policy => policy.RequireRole("Restaurant"));
-            });
-
             /// Register services for Application
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
             builder.Services.AddScoped<IFacadeService, FacadeService>();
@@ -74,12 +69,12 @@ namespace WebAPI
             builder.Services.AddScoped<IAuthorizeService, AuthorizeService>();
             builder.Services.AddScoped<IVnPayService, VNPayService>();
             builder.Services.AddSingleton<IEmailQueue, EmailQueue>();
-            builder.Services.AddTransient<EmailSender>();
-            builder.Services.AddHostedService<BackgroundEmailSender>();            
+            builder.Services.AddTransient<EmailSender>();        
             builder
                 .Services.AddIdentity<ApplicationUser, IdentityRole>()
                 .AddEntityFrameworkStores<AuthorizeDbContext>()
                 .AddDefaultTokenProviders();
+            builder.Services.AddHostedService<BackgroundEmailSender>();
             builder.Services.AddAutoMapper(typeof(AutoMapperProfiles));
 
             var app = builder.Build();

@@ -207,16 +207,18 @@ namespace DataAccess.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("Count")
+                    b.Property<int>("ProductId")
                         .HasColumnType("int");
 
-                    b.Property<int>("ProductId")
+                    b.Property<int>("Quantity")
                         .HasColumnType("int");
 
                     b.Property<Guid>("UserId")
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ProductId");
 
                     b.ToTable("ShoppingCarts");
                 });
@@ -282,6 +284,17 @@ namespace DataAccess.Migrations
                     b.Navigation("Category");
 
                     b.Navigation("ProductAvatar");
+                });
+
+            modelBuilder.Entity("DataAccess.Entities.Application.ShoppingCart", b =>
+                {
+                    b.HasOne("DataAccess.Entities.Application.Product", "Product")
+                        .WithMany()
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Product");
                 });
 
             modelBuilder.Entity("DataAccess.Entities.Application.Feedback", b =>
