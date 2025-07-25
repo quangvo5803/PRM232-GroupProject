@@ -17,7 +17,7 @@
                                 <div class="me-3">
                                     @if (item.ProductAvatar != null)
                                     {
-                                        <img src="/img/products/@item.ProductAvatar" alt="@item.Name" style="width: 80px; height: 80px; object-fit: contain;" />
+                                        <img src="@item.ProductAvatar" alt="@item.Name" style="width: 80px; height: 80px; object-fit: contain;" />
                                     }
                                     else
                                     {
@@ -58,7 +58,7 @@
                 <h4>Shipping Information</h4>
                 <div class="mb-3">
                     <label class="form-label">Email</label>
-                    <input type="email" class="form-control" name="Email" value="" readonly />
+                    <input type="email" class="form-control" name="Email" value="@ViewBag.Email" readonly />
                 </div>
                 <div class="mb-3">
                     <label class="form-label">Phone Number</label>

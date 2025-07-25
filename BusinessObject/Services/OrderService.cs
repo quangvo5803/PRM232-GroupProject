@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+﻿using System.Text;
+using AutoMapper;
 using BusinessObject.DTOs.Orders;
 using BusinessObject.Services.Interfaces;
 using DataAccess.Entities.Application;
@@ -8,7 +9,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
-using System.Text;
 using Utilities.Exceptions;
 
 namespace BusinessObject.Services
@@ -18,6 +18,7 @@ namespace BusinessObject.Services
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly IVnPayService _vpnPayService;
+
         public OrderService(IUnitOfWork unitOfWork, IMapper mapper, IVnPayService vnPayService)
         {
             _unitOfWork = unitOfWork;
@@ -44,9 +45,9 @@ namespace BusinessObject.Services
                 if (product == null)
                 {
                     var errors = new Dictionary<string, string[]>
-                        {
-                            { "Product", new[] { "Product not found." } },
-                        };
+                    {
+                        { "Product", new[] { "Product not found." } },
+                    };
                     throw new CustomValidationException(errors);
                 }
 
@@ -54,7 +55,7 @@ namespace BusinessObject.Services
                 {
                     ProductId = detailDto.ProductId,
                     Quantity = detailDto.Quantity,
-                    UnitPrice = product.Price
+                    UnitPrice = product.Price,
                 };
 
                 rsMapper.TotalPrice += orderDetail.Quantity * orderDetail.UnitPrice;
@@ -63,12 +64,21 @@ namespace BusinessObject.Services
 
             await _unitOfWork.Order.AddAsync(rsMapper);
             await _unitOfWork.SaveAsync();
-
+            var cartItems = await _unitOfWork.ShoppingCart.GetRangeAsync(c =>
+                c.UserId == rsMapper.UserId
+            );
+            if (cartItems != null)
+            {
+                _unitOfWork.ShoppingCart.RemoveRange(cartItems);
+                await _unitOfWork.SaveAsync();
+            }
             return _mapper.Map<OrderDto>(rsMapper);
-
         }
 
-        public async Task<string> CreateVNPayPaymentUrlAsync(OrderCreateRequestDto requestDto, HttpContext context)
+        public async Task<string> CreateVNPayPaymentUrlAsync(
+            OrderCreateRequestDto requestDto,
+            HttpContext context
+        )
         {
             var rsMapper = _mapper.Map<Order>(requestDto);
             rsMapper.TotalPrice = 0;
@@ -80,9 +90,9 @@ namespace BusinessObject.Services
                 if (product == null)
                 {
                     var errors = new Dictionary<string, string[]>
-                        {
-                            { "Product", new[] { "Product not found." } },
-                        };
+                    {
+                        { "Product", new[] { "Product not found." } },
+                    };
                     throw new CustomValidationException(errors);
                 }
 
@@ -90,7 +100,7 @@ namespace BusinessObject.Services
                 {
                     ProductId = detailDto.ProductId,
                     Quantity = detailDto.Quantity,
-                    UnitPrice = product.Price
+                    UnitPrice = product.Price,
                 };
 
                 rsMapper.TotalPrice += orderDetail.Quantity * orderDetail.UnitPrice;
@@ -99,13 +109,20 @@ namespace BusinessObject.Services
 
             await _unitOfWork.Order.AddAsync(rsMapper);
             await _unitOfWork.SaveAsync();
-
+            var cartItems = await _unitOfWork.ShoppingCart.GetRangeAsync(c =>
+                c.UserId == rsMapper.UserId
+            );
+            if (cartItems != null)
+            {
+                _unitOfWork.ShoppingCart.RemoveRange(cartItems);
+                await _unitOfWork.SaveAsync();
+            }
             var vnPayRequest = new VnPaymentRequestModel
             {
                 OrderId = rsMapper.Id,
                 Amount = rsMapper.TotalPrice,
                 CreateDate = DateTime.Now,
-                Description = "Thanh toán VNPay"
+                Description = "Thanh toán VNPay",
             };
 
             var url = _vpnPayService.CreatePaymentUrl(context, vnPayRequest, "Buy");
@@ -125,19 +142,20 @@ namespace BusinessObject.Services
                     {
                         _unitOfWork.Order.Remove(order);
                         await _unitOfWork.SaveAsync();
-                    }   
+                    }
                 }
-                    
+
                 return false;
             }
             return true;
         }
 
-
-
         public async Task<OrderDto> GetOrderByIdAsync(int id)
         {
-            var order = await _unitOfWork.Order.GetAsync(o => o.Id == id, includeProperties: "OrderDetails");
+            var order = await _unitOfWork.Order.GetAsync(
+                o => o.Id == id,
+                includeProperties: "OrderDetails"
+            );
             if (order == null)
             {
                 var errors = new Dictionary<string, string[]>
@@ -150,14 +168,14 @@ namespace BusinessObject.Services
             return _mapper.Map<OrderDto>(order);
         }
 
-
         public async Task<List<CheckOutDto>> CheckOutAsync(Guid userId)
         {
-            var checkOut = await _unitOfWork.ShoppingCart
-                .GetRangeAsync(c => c.UserId == userId, includeProperties: "Product,Product.ProductAvatar");
+            var checkOut = await _unitOfWork.ShoppingCart.GetRangeAsync(
+                c => c.UserId == userId,
+                includeProperties: "Product,Product.ProductAvatar"
+            );
             var rsMapper = _mapper.Map<List<CheckOutDto>>(checkOut);
             return rsMapper;
         }
-
     }
 }

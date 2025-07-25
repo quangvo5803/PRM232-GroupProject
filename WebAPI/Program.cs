@@ -69,11 +69,7 @@ namespace WebAPI
             builder.Services.AddScoped<IAuthorizeService, AuthorizeService>();
             builder.Services.AddScoped<IVnPayService, VNPayService>();
             builder.Services.AddSingleton<IEmailQueue, EmailQueue>();
-            builder.Services.AddTransient<EmailSender>();        
-            builder
-                .Services.AddIdentity<ApplicationUser, IdentityRole>()
-                .AddEntityFrameworkStores<AuthorizeDbContext>()
-                .AddDefaultTokenProviders();
+            builder.Services.AddTransient<EmailSender>();
             builder.Services.AddHostedService<BackgroundEmailSender>();
             builder.Services.AddAutoMapper(typeof(AutoMapperProfiles));
 

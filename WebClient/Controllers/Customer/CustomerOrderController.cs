@@ -1,40 +1,38 @@
-﻿using Azure;
+﻿using System.Net.Http;
+using System.Text;
+using Azure;
 using BusinessObject.DTOs.Orders;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using System.Net.Http;
-using System.Text;
-using WebClient.Services.Interface;
 
 namespace WebClient.Controllers.Customer
 {
     public partial class CustomerController : Controller
     {
-        private readonly IApiService _apiService;
-
-        public CustomerController(IApiService apiService)
-        {
-            _apiService = apiService;
-        }
         public async Task<IActionResult> CheckOut()
         {
             var userId = HttpContext.Session.GetString("UserId");
+            var email = HttpContext.Session.GetString("Email");
             if (string.IsNullOrEmpty(userId))
             {
                 return RedirectToAction("Login", "Authorize");
             }
-            var response = await _apiService.GetAsync($"/api/Customer/checkout/{userId}");
+            var response = await _apiService.GetAsync(
+                $"/api/Customer/Checkout/{userId}",
+                isSkip: false
+            );
 
             if (!response.IsSuccessStatusCode)
             {
-                TempData["error"] = "Không thể tải giỏ hàng.";
+                TempData["error"] = "Unable to load cart.";
                 return View(new List<CheckOutDto>());
             }
 
             var data = await response.Content.ReadAsStringAsync();
             var cartItems = JsonConvert.DeserializeObject<List<CheckOutDto>>(data);
             ViewBag.TotalPrice = cartItems!.Sum(x => x.Price * x.Count);
+            ViewBag.Email = email;
             return View(cartItems);
         }
 
@@ -45,7 +43,7 @@ namespace WebClient.Controllers.Customer
 
             if (string.IsNullOrEmpty(userIdStr) || !Guid.TryParse(userIdStr, out Guid userId))
             {
-                TempData["error"] = "Session hết hạn hoặc không hợp lệ.";
+                TempData["error"] = "Session expired or invalid.";
                 return RedirectToAction("Login", "Authorize");
             }
             orderDto.UserId = userId;
@@ -55,11 +53,15 @@ namespace WebClient.Controllers.Customer
                 return RedirectToAction("CheckOut");
             }
 
-            var response = await _apiService.PostAsync("/api/Customer/createorder", orderDto, isSkip:false);
+            var response = await _apiService.PostAsync(
+                "/api/Customer/CreateOrder",
+                orderDto,
+                isSkip: false
+            );
 
             if (!response.IsSuccessStatusCode)
             {
-                TempData["error"] = "Tạo đơn hàng thất bại.";
+                TempData["error"] = "Order creation failed.";
                 return RedirectToAction("CheckOut");
             }
 
@@ -69,13 +71,12 @@ namespace WebClient.Controllers.Customer
                 var result = JsonConvert.DeserializeObject<JObject>(responseBody);
 
                 string? paymentUrl = (string?)result["paymentUrl"];
-                
+
                 return Redirect(paymentUrl!);
             }
 
             TempData["success"] = "Payment successfully.";
-            return RedirectToAction("Profile");
+            return RedirectToAction("Index", "Home");
         }
-
     }
 }
