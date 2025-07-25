@@ -168,6 +168,16 @@ namespace BusinessObject.Services
             return _mapper.Map<OrderDto>(order);
         }
 
+        public async Task<List<OrderDto>> GetOrdersByUserIdAsync(Guid userId)
+        {
+            var orders = await _unitOfWork.Order.GetRangeAsync(
+                o => o.UserId == userId,
+                includeProperties: "OrderDetails,OrderDetails.Product,OrderDetails.Product.Category,OrderDetails.Product.ProductAvatar"
+            );
+
+            return _mapper.Map<List<OrderDto>>(orders);
+        }
+
         public async Task<List<CheckOutDto>> CheckOutAsync(Guid userId)
         {
             var checkOut = await _unitOfWork.ShoppingCart.GetRangeAsync(
