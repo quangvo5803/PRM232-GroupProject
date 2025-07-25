@@ -4,7 +4,9 @@ using BusinessObject.DTOs.OrderDetail;
 using BusinessObject.DTOs.Orders;
 using BusinessObject.DTOs.Product;
 using BusinessObject.DTOs.ShoppingCart;
+using BusinessObject.DTOs.User;
 using DataAccess.Entities.Application;
+using DataAccess.Entities.Authorize;
 using Utilities.Extensions;
 
 namespace BusinessObject.Mapping
@@ -31,6 +33,11 @@ namespace BusinessObject.Mapping
 
             CreateMap<ShoppingCartCreateRequestDto, ShoppingCart>();
             CreateMap<ShoppingCartUpdateRequestDto, ShoppingCart>();
+
+            CreateMap<ApplicationUser, UserDto>();
+            CreateMap<UserUpdateRequestDto, ApplicationUser>()
+                .ForMember(dest => dest.UserName, opt => opt.Ignore())
+                .ForMember(dest => dest.Email, opt => opt.Ignore());
 
             CreateMap<Category, CategoryDto>().ReverseMap();
             CreateMap<Category, CategoryCreateRequestDto>().ReverseMap();
