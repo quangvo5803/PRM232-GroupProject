@@ -8,7 +8,8 @@ namespace BusinessObject.FacadeService
         ICategoryService Category { get; }
         IOrderService Order { get; }
         IProductService Product { get; }
-        IShoppingCartService ShoppingCart{ get; }
         IFeedbackService Feedback { get; }
+        IShoppingCartService ShoppingCart { get; }
+        IUserService User { get; }
     }
 }

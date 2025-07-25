@@ -8,6 +8,7 @@ namespace BusinessObject.Services.Interfaces
     {
         Task<OrderDto> CreateOrderAsync(OrderCreateRequestDto requestDto);
         Task<OrderDto> GetOrderByIdAsync(int id);
+        Task<List<OrderDto>> GetOrdersByUserIdAsync(Guid userId);
         Task<IEnumerable<OrderDto>> GetAllOrderAsync();
         Task<string> CreateVNPayPaymentUrlAsync(OrderCreateRequestDto requestDto, HttpContext context);
         Task<bool> VNPayCallbackAsync(IQueryCollection query);
