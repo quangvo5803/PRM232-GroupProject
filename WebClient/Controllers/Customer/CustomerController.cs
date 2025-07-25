@@ -66,13 +66,16 @@ namespace WebClient.Controllers.Customer
 
         public async Task<IActionResult> OrderHistory()
         {
-            var userIdStr = HttpContext.Session.GetString("UserId");
-            if (string.IsNullOrEmpty(userIdStr) || !Guid.TryParse(userIdStr, out Guid userId))
+            var userId = HttpContext.Session.GetString("UserId");
+            if (string.IsNullOrEmpty(userId))
             {
                 return RedirectToAction("Login", "Authorize");
             }
 
-            var response = await _apiService.GetAsync($"/api/Customer/OrderHistory/{userId}", false);
+            var response = await _apiService.GetAsync(
+                $"/api/Customer/OrderHistory/{userId}",
+                false
+            );
 
             if (!response.IsSuccessStatusCode)
             {
@@ -85,6 +88,5 @@ namespace WebClient.Controllers.Customer
 
             return View(orders);
         }
-
     }
 }
