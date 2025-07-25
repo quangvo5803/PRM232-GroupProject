@@ -62,6 +62,14 @@ namespace WebAPI.Controllers.Customer
             return Ok(order);
         }
 
+        [HttpGet("OrderHistory/{userId}")]
+        public async Task<IActionResult> GetOrderHistory(Guid userId)
+        {
+            var orders = await _facadeService.Order.GetOrdersByUserIdAsync(userId);
+            return Ok(orders);
+        }
+
+
         [HttpGet("Checkout/{userId}")]
         public async Task<IActionResult> CheckOut(Guid userId)
         {

@@ -1,4 +1,5 @@
-﻿using BusinessObject.DTOs.User;
+﻿using BusinessObject.DTOs.Orders;
+using BusinessObject.DTOs.User;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Utilities.Exceptions;
@@ -62,5 +63,28 @@ namespace WebClient.Controllers.Customer
             TempData["Success"] = "Cập nhật thông tin thành công!";
             return RedirectToAction("Profile");
         }
+
+        public async Task<IActionResult> OrderHistory()
+        {
+            var userIdStr = HttpContext.Session.GetString("UserId");
+            if (string.IsNullOrEmpty(userIdStr) || !Guid.TryParse(userIdStr, out Guid userId))
+            {
+                return RedirectToAction("Login", "Authorize");
+            }
+
+            var response = await _apiService.GetAsync($"/api/Customer/OrderHistory/{userId}", false);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                TempData["error"] = "Không thể tải lịch sử đơn hàng.";
+                return View(new List<OrderDto>());
+            }
+
+            var content = await response.Content.ReadAsStringAsync();
+            var orders = JsonConvert.DeserializeObject<List<OrderDto>>(content);
+
+            return View(orders);
+        }
+
     }
 }

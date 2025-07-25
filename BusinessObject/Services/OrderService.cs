@@ -167,6 +167,15 @@ namespace BusinessObject.Services
 
             return _mapper.Map<OrderDto>(order);
         }
+        public async Task<List<OrderDto>> GetOrdersByUserIdAsync(Guid userId)
+        {
+            var orders = await _unitOfWork.Order.GetRangeAsync(
+                o => o.UserId == userId,
+                includeProperties: "OrderDetails"
+            );
+
+            return _mapper.Map<List<OrderDto>>(orders);
+        }
 
         public async Task<List<CheckOutDto>> CheckOutAsync(Guid userId)
         {

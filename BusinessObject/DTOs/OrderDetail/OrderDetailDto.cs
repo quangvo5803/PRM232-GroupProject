@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using BusinessObject.DTOs.Product;
+using System.ComponentModel.DataAnnotations;
 
 namespace BusinessObject.DTOs.OrderDetail
 {
@@ -19,5 +20,7 @@ namespace BusinessObject.DTOs.OrderDetail
         [Required]
         public double UnitPrice { get; set; }
         public double Total => Quantity * UnitPrice;
+        public ProductDto? Product { get; set; }
+
     }
 }
