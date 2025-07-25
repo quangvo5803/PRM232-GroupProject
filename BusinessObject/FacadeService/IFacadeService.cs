@@ -9,5 +9,6 @@ namespace BusinessObject.FacadeService
         IOrderService Order { get; }
         IProductService Product { get; }
         IShoppingCartService ShoppingCart{ get; }
+        IFeedbackService Feedback { get; }
     }
 }

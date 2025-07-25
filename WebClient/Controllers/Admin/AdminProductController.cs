@@ -1,6 +1,7 @@
 ﻿using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using BusinessObject.DTOs.Category;
+using BusinessObject.DTOs.FeedBack;
 using BusinessObject.DTOs.Product;
 using Microsoft.AspNetCore.Mvc;
 using Utilities.Exceptions;
@@ -233,6 +234,21 @@ namespace WebClient.Controllers.Admin
             }
             TempData["success"] = "Product deleted successfully.";
             return Json(new { success = true, message = "Product deleted successfully." });
+        }
+
+        public async Task<IActionResult> ViewFeedbackProduct (int id)
+        {
+            var response = await _apiService.GetAsync($"/api/Admin/GetFeedbackProduct/{id}", isSkip: false);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                TempData["error"] = "Product not found or error occurred";
+                return RedirectToAction("ProductList");
+            }
+
+            var result = await response.Content.ReadFromJsonAsync<AdminProductFeedbackDto>();
+
+            return View(result);
         }
     }
 }

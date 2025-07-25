@@ -54,7 +54,7 @@ function loadDataTable() {
                     return `
                     <div class="btn-group d-flex justify-content-between" role="group">
                        <a href="/Admin/UpdateProduct?id=${row.id}" class="btn btn-dark flex-grow-1 mx-1">Edit</a>
-                       <a href="/Admin/ViewProductFeedback?id=${row.id}" class="btn btn-primary flex-grow-1 mx-1">View Feedback</a>
+                       <a href="/Admin/ViewFeedbackProduct?id=${row.id}" class="btn btn-primary flex-grow-1 mx-1">View Feedback</a>
                        <a onClick=Delete('/admin/DeleteProduct?id=${row.id}') class="btn btn-danger flex-grow-1 mx-1">Delete</a>
                     </div>`;
                 }

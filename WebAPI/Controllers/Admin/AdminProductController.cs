@@ -59,5 +59,12 @@ namespace WebAPI.Controllers.Admin
             await _facadeService.Product.DeleteProductAsync(id);
             return NoContent();
         }
+
+        [HttpGet("GetFeedbackProduct/{id}")]
+        public async Task<IActionResult> GetFeedbackProductAdmin(int id)
+        {
+            var feedBack = await _facadeService.Feedback.GetFeedbackProductAdminAsync(id);
+            return Ok(feedBack);
+        }
     }
 }
