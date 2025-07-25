@@ -23,7 +23,10 @@ namespace WebClient.Controllers.Customer
                 return RedirectToAction("Login", "Authorize");
             }
 
-            var response = await _apiService.GetAsync($"/api/Customer/{userId}", isSkip: false);
+            var response = await _apiService.GetAsync(
+                $"/api/Customer/GetCart/{userId}",
+                isSkip: false
+            );
             if (!response.IsSuccessStatusCode)
             {
                 await ErrorHandler.HandleValidationErrorAsync(response, TempData);

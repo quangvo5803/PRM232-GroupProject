@@ -18,7 +18,7 @@ namespace WebAPI.Controllers.Customer
             _facadeService = facadeService;
         }
 
-        [HttpGet("{userId}")]
+        [HttpGet("GetCart/{userId}")]
         public async Task<IActionResult> GetCartItems(Guid userId)
         {
             var items = await _facadeService.ShoppingCart.GetCartItemsAsync(userId);

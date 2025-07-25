@@ -13,5 +13,6 @@ namespace DataAccess.Entities.Application
 
         [ForeignKey("ProductId")]
         public Product Product { get; set; }
+
     }
 }
