@@ -24,10 +24,11 @@ namespace BusinessObject.Services
             return user == null ? null : _mapper.Map<UserDto>(user);
         }
 
-        public async Task<bool> UpdateUserProfileAsync(string userId, UserUpdateRequestDto updateDto)
+        public async Task<bool> UpdateUserProfileAsync(UserDto updateDto)
         {
-            var user = await _userManager.FindByIdAsync(userId);
-            if (user == null) return false;
+            var user = await _userManager.FindByIdAsync(updateDto.Id);
+            if (user == null)
+                return false;
 
             _mapper.Map(updateDto, user);
 

@@ -10,20 +10,26 @@ namespace WebClient.Controllers.Customer
         public async Task<IActionResult> Profile()
         {
             var token = HttpContext.Session.GetString("AccessToken");
-            if (string.IsNullOrEmpty(token))
+
+            var userId = HttpContext.Session.GetString("UserId");
+            var email = HttpContext.Session.GetString("Email");
+            if (
+                string.IsNullOrEmpty(token)
+                || string.IsNullOrEmpty(userId)
+                || string.IsNullOrEmpty(email)
+            )
             {
                 return RedirectToAction("Login", "Authorize");
             }
-
             var response = await _apiService.GetAsync(
-                "/api/User/Get",
+                $"/api/Customer/GetUserProfile/{userId}",
                 isSkip: false
             );
 
             if (!response.IsSuccessStatusCode)
             {
                 await ErrorHandler.HandleValidationErrorAsync(response, TempData);
-                return View(new UserDto());
+                return View(new UserDto { Id = userId, Email = email });
             }
 
             var content = await response.Content.ReadAsStringAsync();
@@ -33,7 +39,7 @@ namespace WebClient.Controllers.Customer
         }
 
         [HttpPost]
-        public async Task<IActionResult> UpdateProfile(UserUpdateRequestDto dto)
+        public async Task<IActionResult> UpdateProfile(UserDto dto)
         {
             var token = HttpContext.Session.GetString("AccessToken");
             if (string.IsNullOrEmpty(token))
@@ -42,7 +48,7 @@ namespace WebClient.Controllers.Customer
             }
 
             var response = await _apiService.PutAsync(
-                "/api/User/Update",
+                "/api/Customer/UpdateUserProfile",
                 dto,
                 isSkip: false
             );

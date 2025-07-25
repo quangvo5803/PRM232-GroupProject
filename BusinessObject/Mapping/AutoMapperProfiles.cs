@@ -34,10 +34,7 @@ namespace BusinessObject.Mapping
             CreateMap<ShoppingCartCreateRequestDto, ShoppingCart>();
             CreateMap<ShoppingCartUpdateRequestDto, ShoppingCart>();
 
-            CreateMap<ApplicationUser, UserDto>();
-            CreateMap<UserUpdateRequestDto, ApplicationUser>()
-                .ForMember(dest => dest.UserName, opt => opt.Ignore())
-                .ForMember(dest => dest.Email, opt => opt.Ignore());
+            CreateMap<ApplicationUser, UserDto>().ReverseMap();
 
             CreateMap<Category, CategoryDto>().ReverseMap();
             CreateMap<Category, CategoryCreateRequestDto>().ReverseMap();

@@ -1,37 +1,28 @@
-﻿using BusinessObject.DTOs.User;
-using BusinessObject.Services.Interfaces;
-using Microsoft.AspNetCore.Http;
+﻿using System.Security.Claims;
+using BusinessObject.DTOs.User;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
 
 namespace WebAPI.Controllers.Customer
 {
     public partial class CustomerController : ControllerBase
     {
-        private readonly IUserService _userService;
-
-        public CustomerController(IUserService userService)
+        [HttpGet("GetUserProfile/{userId}")]
+        public async Task<IActionResult> GetProfile(string userId)
         {
-            _userService = userService;
-        }
+            if (string.IsNullOrEmpty(userId))
+                return Unauthorized();
 
-        [HttpGet("Get")]
-        public async Task<IActionResult> GetProfile()
-        {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (string.IsNullOrEmpty(userId)) return Unauthorized();
-
-            var userDto = await _userService.GetUserProfileAsync(userId);
+            var userDto = await _facadeService.User.GetUserProfileAsync(userId);
             return userDto == null ? NotFound() : Ok(userDto);
         }
 
-        [HttpPut("Update")]
-        public async Task<IActionResult> UpdateProfile([FromBody] UserUpdateRequestDto updateDto)
+        [HttpPut("UpdateUserProfile")]
+        public async Task<IActionResult> UpdateProfile([FromBody] UserDto updateDto)
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (string.IsNullOrEmpty(userId)) return Unauthorized();
+            if (string.IsNullOrEmpty(updateDto.Id))
+                return Unauthorized();
 
-            var success = await _userService.UpdateUserProfileAsync(userId, updateDto);
+            var success = await _facadeService.User.UpdateUserProfileAsync(updateDto);
             return success ? NoContent() : NotFound();
         }
     }
