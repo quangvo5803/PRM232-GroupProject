@@ -15,7 +15,7 @@ namespace WebAPI.Controllers.Customer
         }
 
         [HttpPost("CreateFeedback")]
-        public async Task<IActionResult> CreateFeedback([FromQuery] FeedbackCreateRequestDto requestDto)
+        public async Task<IActionResult> CreateFeedback([FromForm] FeedbackCreateRequestDto requestDto)
         {
             if (requestDto == null)
             {

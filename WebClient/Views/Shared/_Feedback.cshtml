@@ -1,6 +1,15 @@
 ﻿
 <link rel="stylesheet" href="~/css/feedback.css">
-<button id="btnFeedback" class="btn btn-outline-primary shadow-0" data-bs-toggle="modal" data-bs-target="#feedbackModal">Feedback</button>
+
+<button class="btn btn-outline-primary shadow-0 btn-feedback"
+        data-bs-toggle="modal" data-bs-target="#feedbackModal"
+        data-product-id="@Model.Id"
+        data-product-avatar="@Model.ProductAvatar"
+        data-product-name="@Model.Name"
+        data-product-category="@Model.Category?.Name">
+    Feedback
+</button>
+
 <!-- Modal Feedback  -->
 <div class="modal fade" id="feedbackModal" tabindex="-1" aria-labelledby="feedbackModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg w-100">
@@ -15,7 +24,7 @@
                             <span>⭐ Please send us your review 🤗</span>
                         </div>
                         <div class="product-info">
-                            <img src="/img/products/@Model.ProductAvatar?.ImagePath" alt="Sản phẩm" class="product-image">
+                            <img src="@Model.ProductAvatar" alt="Sản phẩm" class="product-image">
                             <div class="product-details">
                                 <p class="product-name">@Model.Name</p>
                                 <p class="product-type">Category: @Model.Category?.Name</p>
@@ -53,5 +62,5 @@
         </div>
     </div>
 </div>
-<script src="~/js/Customer/Feedback.js"></script>
 
+<script src="~/js/Customer/Feedback.js"></script>

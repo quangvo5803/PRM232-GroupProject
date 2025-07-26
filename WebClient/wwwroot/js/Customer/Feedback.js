@@ -1,4 +1,19 @@
-﻿document.addEventListener("DOMContentLoaded", () => {
+﻿const feedbackModal = document.getElementById('feedbackModal');
+feedbackModal.addEventListener('show.bs.modal', function (event) {
+    const button = event.relatedTarget;
+
+    const productId = button.getAttribute('data-product-id');
+    const productAvatar = button.getAttribute('data-product-avatar');
+    const productName = button.getAttribute('data-product-name');
+    const productCategory = button.getAttribute('data-product-category');
+
+    feedbackModal.querySelector('input[name="productId"]').value = productId;
+    feedbackModal.querySelector('.product-image').src = productAvatar;
+    feedbackModal.querySelector('.product-name').textContent = productName;
+    feedbackModal.querySelector('.product-type').textContent = "Category: " + productCategory;
+});
+
+document.addEventListener("DOMContentLoaded", () => {
     const stars = document.querySelectorAll(".star");
     const ratingText = document.querySelector(".rating-text");
     const ratingInput = document.getElementById("ratingInput");
@@ -9,7 +24,7 @@
         4: "Good",
         5: "Excellent"
     };
-
+    
     let currentRating = 5; // Mặc định là 5 sao
 
     const setRating = (rating) => {
@@ -51,20 +66,4 @@ imageInput.addEventListener('change', () => {
         };
         reader.readAsDataURL(file);
     });
-});
-
-// Gửi ảnh đến server
-document.getElementById("submitBtn").addEventListener("click", async () => {
-    let formData = new FormData();
-    selectedFiles.forEach((file) => {
-        formData.append("Images", file);
-    });
-
-    const response = await fetch("/Customer/SubmitFeedBack", {
-        method: "POST",
-        body: formData
-    });
-
-    const result = await response.text();
-    console.log(result);
 });

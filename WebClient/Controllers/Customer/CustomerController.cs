@@ -88,5 +88,21 @@ namespace WebClient.Controllers.Customer
 
             return View(orders);
         }
+
+        public async Task<IActionResult> CancelOrder(int id)
+        {
+            var response = await _apiService.DeleteAsync($"/api/Customer/CancelOrder/{id}", isSkip: false);
+
+            if (response.IsSuccessStatusCode)
+            {
+                TempData["success"] = "Order canceled successfully.";
+            }
+            else
+            {
+                TempData["error"] = "Failed to cancel the order.";
+            }
+
+            return RedirectToAction("OrderHistory");
+        }
     }
 }

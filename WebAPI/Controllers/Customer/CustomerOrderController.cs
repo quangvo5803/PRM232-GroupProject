@@ -78,5 +78,12 @@ namespace WebAPI.Controllers.Customer
                 return NotFound();
             return Ok(request);
         }
+
+        [HttpDelete("CancelOrder/{id}")]
+        public async Task<IActionResult> CancelOrder(int id)
+        {
+            await _facadeService.Order.CancelOrderAsync(id);
+            return NoContent();
+        }
     }
 }

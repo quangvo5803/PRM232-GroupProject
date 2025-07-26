@@ -187,5 +187,20 @@ namespace BusinessObject.Services
             var rsMapper = _mapper.Map<List<CheckOutDto>>(checkOut);
             return rsMapper;
         }
+
+        public async Task CancelOrderAsync(int id)
+        {
+            var order = await _unitOfWork.Order.GetAsync(o => o.Id == id, includeProperties: "OrderDetails");
+            if (order == null)
+            {
+                var errors = new Dictionary<string, string[]>
+                {
+                    { "order", new[] { "Order not found." } },
+                };
+                throw new CustomValidationException(errors);
+            }
+            order.Status = OrderStatus.Cancelled;
+            await _unitOfWork.SaveAsync();
+        }
     }
 }
