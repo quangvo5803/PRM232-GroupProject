@@ -1,4 +1,5 @@
-using System.Diagnostics;
+﻿using System.Diagnostics;
+using BusinessObject.DTOs.FeedBack;
 using BusinessObject.DTOs.Product;
 using Microsoft.AspNetCore.Mvc;
 using Utilities.Exceptions;
@@ -49,27 +50,32 @@ public class HomeController : Controller
         }
         var product = await response.Content.ReadFromJsonAsync<ProductDto>();
 
-        //var feedbacks = _unitOfWork.Feedback.GetRange(
-        //    f => f.ProductId == id,
-        //    includeProperties: "User,Images"
-        //);
-        //if (product != null && product.ProductImages != null)
-        //{
-        //    product.ProductImages = product
-        //        .ProductImages.Where(img => img.FeedbackId == null)
-        //        .ToList();
-        //}
-        //int totalFeedbacks = feedbacks.Count();
+        if (product == null)
+        {
+            TempData["error"] = "Error! Cannot load product data";
+            return RedirectToAction("Index", "Home");
+        }
 
-        //var feedbackPage = feedbacks.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToList();
-        //if (product == null)
-        //{
-        //    TempData["error"] = "Error! Cannot load product data";
-        //    return RedirectToAction("Index", "Home");
-        //}
-        //ViewBag.Feedbacks = feedbacks;
-        //ViewBag.PageNumber = pageNumber;
-        //ViewBag.PageSize = pageSize;
+        var feedbackResponse = await _apiService.GetAsync($"/api/Customer/GetAllFeedback/{id}", isSkip: false);
+
+        List<FeedbackDto> feedbacks = new();
+
+        if (feedbackResponse.IsSuccessStatusCode)
+        {
+            feedbacks = await feedbackResponse.Content.ReadFromJsonAsync<List<FeedbackDto>>() ?? new();
+        }
+
+        
+        int totalFeedbacks = feedbacks.Count;
+        var feedbackPage = feedbacks
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize)
+            .ToList();
+ 
+        ViewBag.Feedbacks = feedbackPage;
+        ViewBag.PageNumber = pageNumber;
+        ViewBag.PageSize = pageSize;
+        
         return View(product);
     }
 

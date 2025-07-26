@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DataAccess.Entities.Authorize;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -21,6 +22,10 @@ namespace DataAccess.Entities.Application
 
         public int ProductId { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.Now;
+
+        [ForeignKey("ProductId")]
+        public Product Product { get; set; }
+
         public virtual ICollection<ItemImage>? Images { get; set; }
     }
 }

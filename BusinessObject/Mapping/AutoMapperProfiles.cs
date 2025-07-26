@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using BusinessObject.DTOs.Category;
+using BusinessObject.DTOs.FeedBack;
 using BusinessObject.DTOs.OrderDetail;
 using BusinessObject.DTOs.Orders;
 using BusinessObject.DTOs.Product;
@@ -94,6 +95,31 @@ namespace BusinessObject.Mapping
             CreateMap<ProductUpdateDto, Product>()
                 .ForMember(dest => dest.ProductAvatar, opt => opt.Ignore())
                 .ForMember(dest => dest.ProductImages, opt => opt.Ignore());
+
+
+            //FeedBack
+            CreateMap<Feedback, FeedbackDto>()
+                .ForMember(
+                    dest => dest.Images,
+                    opt =>
+                        opt.MapFrom(src =>
+                            src.Images != null
+                                ? src.Images.Select(i => i.ImageUrl).ToList()
+                                : new List<string>()
+                        )
+                );
+                
+            CreateMap<FeedbackCreateRequestDto, Feedback>()
+                .ForMember(dest => dest.Images, opt => opt.Ignore());
+
+            CreateMap<Product, AdminProductFeedbackDto>()
+            .ForMember(
+                    dest => dest.ProductAvatar,
+                    opt =>
+                        opt.MapFrom(src =>
+                            src.ProductAvatar != null ? src.ProductAvatar.ImageUrl : null
+                        )
+            );
         }
     }
 }

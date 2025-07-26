@@ -9,7 +9,7 @@ namespace DataAccess.Entities.Application
         public int ImageID { get; set; }
 
         public required string ImageUrl { get; set; }
-        public required int ProductId { get; set; }
+        public int? ProductId { get; set; }
         public int? FeedbackId { get; set; }
 
         [ForeignKey("ProductId")]

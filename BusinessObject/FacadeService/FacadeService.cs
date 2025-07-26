@@ -23,6 +23,7 @@ namespace BusinessObject.FacadeService
         public ICategoryService Category { get; private set; }
         public IOrderService Order { get; private set; }
         public IProductService Product { get; private set; }
+        public IFeedbackService Feedback { get; private set; }
         public IUserService User { get; private set; }
 
         public FacadeService(
@@ -32,6 +33,7 @@ namespace BusinessObject.FacadeService
             IMapper mapper,
             IVnPayService vnPayService,
             UserManager<ApplicationUser> userManager
+
         )
         {
             _unitOfWork = unitOfWork;
@@ -45,6 +47,7 @@ namespace BusinessObject.FacadeService
             ShoppingCart = new ShoppingCartService(_unitOfWork, _mapper);
             Category = new CategoryService(_unitOfWork, _mapper);
             Product = new ProductService(_unitOfWork, _mapper);
+            Feedback = new FeedbackService(_unitOfWork, _mapper, _userManager);
             User = new UserService(_userManager, _mapper);
         }
     }

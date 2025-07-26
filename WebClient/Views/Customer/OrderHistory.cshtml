@@ -117,7 +117,7 @@
                                                                     <span>Total: <strong class="text-danger">@(order.TotalPrice.ToString("C", new CultureInfo("vi-VN")))</strong></span>
                                                                     <div>
                                                                         <a href="javascript:void(0);" class="btn btn-outline-danger btn-sm ms-2"
-                                                                           onclick="confirmCancelOrder('@Url.Action("CancelOrder", new { orderId = order.Id })')">
+                                                                           onclick="confirmCancelOrder('@Url.Action("CancelOrder", new { id = order.Id })')">
                                                                             Cancel Order
                                                                         </a>
                                                                     </div>
@@ -184,6 +184,9 @@
                                                                                     <p class="mb-0">Quantity: @item.Quantity</p>
                                                                                     <p class="text-dark fw-bold mb-0">No information</p>
                                                                                 }
+                                                                            </div>
+                                                                            <div class="col-auto">
+                                                                                <partial name="_Feedback" model="@item.Product" />
                                                                             </div>
                                                                         </div>
                                                                     }

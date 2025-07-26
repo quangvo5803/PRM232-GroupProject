@@ -1,14 +1,16 @@
 ﻿@using System.Globalization
 @model ProductDto
+@using BusinessObject.DTOs.FeedBack;
 
 @{
     ViewData["Title"] = "Product Detail";
-    // var feedbacks = ViewBag.Feedbacks as List<Feedback>;
-    // double avgRating = feedbacks.Any() ? feedbacks.Average(f => f.FeedbackStars) : 0;
-    // int totalReviews = feedbacks.Count();
-     int thumbnail = 0;
-    // int totalPages = (int)Math.Ceiling((double)totalReviews / ViewBag.PageSize);
-    // int currentPage = ViewBag.PageNumber;
+    var feedbacks = ViewBag.Feedbacks as List<FeedbackDto> ;
+    double avgRating = feedbacks!.Any() ? feedbacks!.Average(f => f.FeedbackStars) : 0;
+    int totalReviews = feedbacks!.Count();
+    int thumbnail = 0;
+    int totalPages = (int)Math.Ceiling((double)totalReviews / ViewBag.PageSize);
+    int currentPage = ViewBag.PageNumber;
+   
 }
 <section>
     <div class="container-xxl py-5 bg-dark hero-header mb-5">
@@ -78,7 +80,7 @@
                     <h4 class="title text-dark">
                         @Model.Name
                     </h4>
-                    @* <div class="d-flex flex-row my-3">
+                    <div class="d-flex flex-row my-3">
                         <div class="text-warning mb-1 me-2">
                             @for (int i = 1; i <= 5; i++)
                             {
@@ -99,7 +101,7 @@
                         <span class="ms-1">
                             @avgRating (@totalReviews reviews)
                         </span>
-                    </div> *@
+                    </div>
 
                     <div class="mb-3">
                         <span class="h5">
@@ -168,7 +170,7 @@
                         </div>
                         <div class="tab-pane fade" id="feedback" role="tabpanel" aria-labelledby="feedback">
                             <!--Review -->
-                            @* @if (feedbacks != null && feedbacks.Any())
+                            @if (feedbacks != null && feedbacks.Any())
                             {
                                 <div class="review-item border-bottom pb-3 mb-3">
 
@@ -176,7 +178,7 @@
                                     {
                                         <div class="d-flex justify-content-between">
                                             <div class="review-header">
-                                                <strong>@(f.User?.UserName ?? f.User?.Email)</strong>
+                                                <strong>@(f.FullName ?? f.Email)</strong>
                                                 <div class="rating">
                                                     @for (int i = 1; i <= 5; i++)
                                                     {
@@ -200,29 +202,29 @@
                                         <p class="mt-2">@f.FeedbackContent</p>
 
                                         <!-- Review Images -->
-                                        @if (f.Images != null)
+                                        @if (f.Images != null && f.Images.Any())
                                         {
                                             <div class="review-images">
                                                 @foreach (var image in f.Images)
                                                 {
-                                                    <a class="venobox" data-gall="gallery01" data-fitview="true" href="/img/feedbacks/@image.ImagePath">
-                                                        <img src="~/img/feedbacks/@image.ImagePath" alt="Review Image" />
+                                                    <a class="venobox" data-gall="gallery01" data-fitview="true" href="@image">
+                                                        <img src="@image" alt="Review Image" />
                                                     </a>
                                                 }
                                             </div>
                                         }
                                     }
-                                </div> *@
-                            @* }
+                                </div> 
+                             }
                             else
-                            { *@
+                            { 
                                 <p>
                                     Not have Review
                                 </p>
-                            @* } *@
+                            } 
 
                             <!--Pagenation -->
-                            @* <nav aria-label="Review pagination" class="d-flex justify-content-center">
+                            <nav aria-label="Review pagination" class="d-flex justify-content-center">
                                 <ul class="pagination">
                                     @if (currentPage > 1)
                                     {
@@ -244,7 +246,7 @@
                                         </li>
                                     }
                                 </ul>
-                            </nav> *@
+                            </nav> 
                         </div>
                     </div>
                     <!-- Pills content -->
