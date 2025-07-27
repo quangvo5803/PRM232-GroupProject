@@ -2,7 +2,6 @@
 using BusinessObject.DTOs.User;
 using BusinessObject.Services.Interfaces;
 using DataAccess.Entities.Authorize;
-using DataAccess.UnitOfWork;
 using Microsoft.AspNetCore.Identity;
 
 namespace BusinessObject.Services
@@ -18,10 +17,36 @@ namespace BusinessObject.Services
             _mapper = mapper;
         }
 
+        public async Task<IEnumerable<UserDto>> GetAllCustomersAsync()
+        {
+            var users = _userManager.Users.ToList();
+            var customers = new List<ApplicationUser>();
+
+            foreach (var user in users)
+            {
+                if (await _userManager.IsInRoleAsync(user, "Customer"))
+                {
+                    customers.Add(user);
+                }
+            }
+            var customersDto = _mapper.Map<IEnumerable<UserDto>>(
+                customers ?? new List<ApplicationUser>()
+            );
+            return customersDto;
+        }
+
         public async Task<UserDto?> GetUserProfileAsync(string userId)
         {
             var user = await _userManager.FindByIdAsync(userId);
-            return user == null ? null : _mapper.Map<UserDto>(user);
+            if (user == null)
+                return null;
+
+            var dto = _mapper.Map<UserDto>(user);
+
+            var roles = await _userManager.GetRolesAsync(user);
+            dto.Role = roles.FirstOrDefault();
+
+            return dto;
         }
 
         public async Task<bool> UpdateUserProfileAsync(UserDto updateDto)

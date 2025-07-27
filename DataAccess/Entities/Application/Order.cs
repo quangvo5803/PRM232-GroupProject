@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using DataAccess.Entities.Authorize;
 
 namespace DataAccess.Entities.Application
 {
@@ -38,6 +39,6 @@ namespace DataAccess.Entities.Application
     public enum PaymentMethod
     {
         PayByCash,
-        VNPay
+        VNPay,
     }
 }

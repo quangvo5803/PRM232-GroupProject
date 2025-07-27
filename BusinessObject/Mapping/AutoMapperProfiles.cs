@@ -16,6 +16,7 @@ namespace BusinessObject.Mapping
     {
         public AutoMapperProfiles()
         {
+            CreateMap<Gender, string>().ConvertUsing(src => src.GetDisplayName());
             CreateMap<OrderStatus, string>().ConvertUsing(src => src.GetDisplayName());
 
             // Map ShopppingCart to ShopppingCartDTO
@@ -96,7 +97,6 @@ namespace BusinessObject.Mapping
                 .ForMember(dest => dest.ProductAvatar, opt => opt.Ignore())
                 .ForMember(dest => dest.ProductImages, opt => opt.Ignore());
 
-
             //FeedBack
             CreateMap<Feedback, FeedbackDto>()
                 .ForMember(
@@ -108,18 +108,18 @@ namespace BusinessObject.Mapping
                                 : new List<string>()
                         )
                 );
-                
+
             CreateMap<FeedbackCreateRequestDto, Feedback>()
                 .ForMember(dest => dest.Images, opt => opt.Ignore());
 
             CreateMap<Product, AdminProductFeedbackDto>()
-            .ForMember(
+                .ForMember(
                     dest => dest.ProductAvatar,
                     opt =>
                         opt.MapFrom(src =>
                             src.ProductAvatar != null ? src.ProductAvatar.ImageUrl : null
                         )
-            );
+                );
         }
     }
 }

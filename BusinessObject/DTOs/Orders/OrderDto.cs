@@ -12,7 +12,7 @@ namespace BusinessObject.DTOs.Orders
         public required string Status { get; set; }
         public string? ShippingAddress { get; set; }
         public string? PhoneNumber { get; set; }
-
+        public string? UserFullName { get; set; }
         public List<OrderDetailDto> OrderDetails { get; set; } = new();
     }
 }

@@ -3,9 +3,11 @@ using AutoMapper;
 using BusinessObject.DTOs.Orders;
 using BusinessObject.Services.Interfaces;
 using DataAccess.Entities.Application;
+using DataAccess.Entities.Authorize;
 using DataAccess.UnitOfWork;
 using MailKit.Search;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
@@ -18,18 +20,34 @@ namespace BusinessObject.Services
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly IVnPayService _vpnPayService;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public OrderService(IUnitOfWork unitOfWork, IMapper mapper, IVnPayService vnPayService)
+        public OrderService(
+            IUnitOfWork unitOfWork,
+            IMapper mapper,
+            IVnPayService vnPayService,
+            UserManager<ApplicationUser> userManager
+        )
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _vpnPayService = vnPayService;
+            _userManager = userManager;
         }
 
         public async Task<IEnumerable<OrderDto>> GetAllOrderAsync()
         {
             var order = await _unitOfWork.Order.GetAllAsync(includeProperties: "OrderDetails");
-            var rsMapper = _mapper.Map<IEnumerable<OrderDto>>(order);
+
+            var rsMapper = _mapper.Map<IEnumerable<OrderDto>>(order ?? new List<Order>());
+            foreach (var orderDto in rsMapper)
+            {
+                var user = await _userManager.FindByIdAsync(orderDto.UserId.ToString());
+                if (user != null)
+                {
+                    orderDto.UserFullName = user.FullName;
+                }
+            }
             return rsMapper;
         }
 
@@ -190,7 +208,10 @@ namespace BusinessObject.Services
 
         public async Task CancelOrderAsync(int id)
         {
-            var order = await _unitOfWork.Order.GetAsync(o => o.Id == id, includeProperties: "OrderDetails");
+            var order = await _unitOfWork.Order.GetAsync(
+                o => o.Id == id,
+                includeProperties: "OrderDetails"
+            );
             if (order == null)
             {
                 var errors = new Dictionary<string, string[]>
