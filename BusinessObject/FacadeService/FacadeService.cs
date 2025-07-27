@@ -25,6 +25,7 @@ namespace BusinessObject.FacadeService
         public IProductService Product { get; private set; }
         public IFeedbackService Feedback { get; private set; }
         public IUserService User { get; private set; }
+        public IStaticService Static { get; private set; }
 
         public FacadeService(
             IUnitOfWork unitOfWork,
@@ -48,6 +49,7 @@ namespace BusinessObject.FacadeService
             Product = new ProductService(_unitOfWork, _mapper);
             Feedback = new FeedbackService(_unitOfWork, _mapper, _userManager);
             User = new UserService(_userManager, _mapper);
+            Static = new StaticService(Order, Category, Product, Feedback, User);
         }
     }
 }

@@ -11,5 +11,6 @@ namespace BusinessObject.FacadeService
         IFeedbackService Feedback { get; }
         IShoppingCartService ShoppingCart { get; }
         IUserService User { get; }
+        IStaticService Static { get; }
     }
 }

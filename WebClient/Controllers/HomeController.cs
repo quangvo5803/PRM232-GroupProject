@@ -56,26 +56,23 @@ public class HomeController : Controller
             return RedirectToAction("Index", "Home");
         }
 
-        var feedbackResponse = await _apiService.GetAsync($"/api/Customer/GetAllFeedback/{id}", isSkip: false);
+        var feedbackResponse = await _apiService.GetAsync($"/api/Home/GetAllFeedback/{id}");
 
         List<FeedbackDto> feedbacks = new();
 
         if (feedbackResponse.IsSuccessStatusCode)
         {
-            feedbacks = await feedbackResponse.Content.ReadFromJsonAsync<List<FeedbackDto>>() ?? new();
+            feedbacks =
+                await feedbackResponse.Content.ReadFromJsonAsync<List<FeedbackDto>>() ?? new();
         }
 
-        
         int totalFeedbacks = feedbacks.Count;
-        var feedbackPage = feedbacks
-            .Skip((pageNumber - 1) * pageSize)
-            .Take(pageSize)
-            .ToList();
- 
+        var feedbackPage = feedbacks.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToList();
+
         ViewBag.Feedbacks = feedbackPage;
         ViewBag.PageNumber = pageNumber;
         ViewBag.PageSize = pageSize;
-        
+
         return View(product);
     }
 

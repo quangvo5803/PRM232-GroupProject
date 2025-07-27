@@ -14,7 +14,7 @@ namespace WebClient.Controllers.Admin
             _apiService = apiService;
         }
 
-        public IActionResult Index()
+        public IActionResult Index(int? year =null)
         {
             var accessToken = HttpContext.Session.GetString("AccessToken");
             var userRole = HttpContext.Session.GetString("Role");
@@ -27,7 +27,8 @@ namespace WebClient.Controllers.Admin
                 TempData["error"] = "You do not have permission to access this page.";
                 return RedirectToAction("Index", "Home");
             }
-            return View();
+            //return View();
+            return RedirectToAction("GetStatistic", new { year = year });
         }
 
         public IActionResult CategoryList()
