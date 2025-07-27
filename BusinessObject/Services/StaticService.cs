@@ -30,7 +30,7 @@ namespace BusinessObject.Services
         {
             var allOrders = await _oderService.GetAllOrderAsync();
 
-            var orderCompleted = allOrders.Where(o => o.Status == "Completed").ToList();
+            var orderCompleted = allOrders.Where(o => o.Status == OrderStatus.Completed.ToString()).ToList();
             var currentMonth = DateTime.Now.Month;
             var currentYear = DateTime.Now.Year;
 

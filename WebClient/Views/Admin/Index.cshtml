@@ -1,24 +1,33 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@model BusinessObject.DTOs.Admin.StaticDto
+@{
+    ViewData["Title"] = "Admin Dashboard";
 
-    var avgRating = ViewBag.AvgRating as double? ?? 0;
-    var userCount = ViewBag.UserCount as int? ?? 0;
-    var totalOrdersMonthly = ViewBag.TotalOrdersMonthly as int? ?? 0;
-    var earningsMonth = ViewBag.EarningsMonth as double? ?? 0;
-    var years = ViewBag.Years as List<SelectListItem>;
-    var selectedYear = ViewBag.SelectedYear?.ToString() ?? DateTime.Now.Year.ToString();
+    var avgRating = Model.AvgRating;
+    var userCount = Model.UserCount;
+    var totalOrdersMonthly = Model.TotalOrdersMonth;
+    var earningsMonth = Model.EarningsMonth;
+    var totalPrice = Model.TotalPricesEachMonth ?? new List<double>();
+    var categoryNames = Model.CategoriesName ?? new List<string>();
+    var totalQuantities = Model.TotalQuantity ?? new List<int>();
+
+    var currentYear = DateTime.Now.Year;
+    var years = new List<SelectListItem>();
+    for (int i = currentYear - 4; i <= currentYear; i++)
+    {
+        years.Add(new SelectListItem { Value = i.ToString(), Text = i.ToString(), Selected = i == currentYear });
+    }
 }
 <div class="admin-margin">
     <div class="container mt-5">
         <div class="row">
-            <!-- Earnings (Monthly) Card Example -->
+            <!-- Total Orders Monthly -->
             <div class="col-lg-3 col-md-6 mb-4">
                 <div class="card border-left-primary shadow h-100 py-2">
                     <div class="card-body">
                         <div class="row no-gutters align-items-center">
                             <div class="col mr-2">
-                                <div class="text-xs font-weight-bold text-uppercase mb-1" style="color:#4e73df !important">
-                                    Total Order(Monthly)
+                                <div class="text-xs font-weight-bold text-uppercase mb-1 text-primary">
+                                    Total Orders (Month)
                                 </div>
                                 <div class="h5 mb-0 font-weight-bold text-gray-800">@totalOrdersMonthly</div>
                             </div>
@@ -30,7 +39,7 @@
                 </div>
             </div>
 
-            <!-- Earnings (Annual) Card Example -->
+            <!-- Earnings (Month) -->
             <div class="col-lg-3 col-md-6 mb-4">
                 <div class="card border-left-success shadow h-100 py-2">
                     <div class="card-body">
@@ -51,14 +60,14 @@
                 </div>
             </div>
 
-            <!-- Tasks Card Example -->
+            <!-- Total Users -->
             <div class="col-lg-3 col-md-6 mb-4">
                 <div class="card border-left-info shadow h-100 py-2">
                     <div class="card-body">
                         <div class="row no-gutters align-items-center">
                             <div class="col mr-2">
                                 <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
-                                    Total User
+                                    Total Users
                                 </div>
                                 <div class="h5 mb-0 font-weight-bold text-gray-800">@userCount</div>
                             </div>
@@ -70,14 +79,14 @@
                 </div>
             </div>
 
-            <!-- Pending Requests Card Example -->
+            <!-- Feedback -->
             <div class="col-lg-3 col-md-6 mb-4">
                 <div class="card border-left-warning shadow h-100 py-2">
                     <div class="card-body">
                         <div class="row no-gutters align-items-center">
                             <div class="col mr-2">
                                 <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
-                                    Feedback
+                                    Feedback (Avg Stars)
                                 </div>
                                 <div class="row no-gutters align-items-center">
                                     <div class="col-auto">
@@ -86,8 +95,9 @@
                                     <div class="col">
                                         <div class="progress progress-sm mr-2">
                                             <div class="progress-bar bg-warning" role="progressbar"
-                                                 style="width:   @(avgRating != null ? avgRating / 5 * 100 : 0)%" aria-valuenow="@(avgRating / 5 * 100)" aria-valuemin="0"
-                                                 aria-valuemax="100"></div>
+                                                 style="width:@(avgRating / 5 * 100)%"
+                                                 aria-valuenow="@(avgRating / 5 * 100)" aria-valuemin="0" aria-valuemax="100">
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -100,34 +110,25 @@
                 </div>
             </div>
         </div>
-    </div>
 
-
-    <!-- Content Row -->
-
-    <div class="container mt-5">
+        <!-- Charts -->
         <div class="row">
-
             <!-- Area Chart -->
             <div class="col-md-8 col-lg-7">
                 <div class="card shadow mb-4">
-                    <!-- Card Header - Dropdown -->
                     <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
                         <h6 class="m-0 font-weight-bold text-primary">Earnings Overview</h6>
                         <div class="dropdown">
                             <form id="yearForm" method="get" asp-controller="Admin" asp-action="Index">
                                 <select id="yearSelector" name="year" class="form-control" onchange="this.form.submit()">
-                                    @foreach (var year in ViewBag.Years)
+                                    @foreach (var year in years)
                                     {
-                                        <option value="@year.Value" selected="@(year.Value == ViewBag.SelectedYear.ToString() ? "selected" : null)">
-                                            @year.Value
-                                        </option>
+                                        <option value="@year.Value" selected="@year.Selected">@year.Text</option>
                                     }
                                 </select>
                             </form>
                         </div>
                     </div>
-                    <!-- Card Body -->
                     <div class="card-body">
                         <div class="chart-area">
                             <canvas id="myAreaChart"></canvas>
@@ -139,11 +140,9 @@
             <!-- Pie Chart -->
             <div class="col-md-4 col-lg-5">
                 <div class="card shadow mb-4">
-                    <!-- Card Header - Dropdown -->
                     <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
                         <h6 class="m-0 font-weight-bold text-primary">Revenue Sources</h6>
                     </div>
-                    <!-- Card Body -->
                     <div class="card-body">
                         <div class="chart-pie pt-4 pb-2">
                             <canvas id="myPieChart"></canvas>
@@ -152,8 +151,8 @@
                 </div>
             </div>
         </div>
-    </div>
-</div>
+    </div> <!-- end container -->
+</div> <!-- end admin-margin -->
 
 
 <!-- Content Row -->
@@ -189,8 +188,7 @@
 </style>
 @section Scripts {
     <script>
-        // Biểu đồ đường (Earnings Overview)
-        var totalPriceData = @Html.Raw(Json.Serialize(ViewBag.TotalPrice));
+        var totalPriceData = @Html.Raw(Json.Serialize(Model.TotalPricesEachMonth));
         var ctx1 = document.getElementById("myAreaChart").getContext("2d");
         var myAreaChart = new Chart(ctx1, {
             type: "line",
@@ -209,19 +207,14 @@
                 responsive: true,
                 maintainAspectRatio: false,
                 scales: {
-                    x: {
-                        grid: { display: false }
-                    },
-                    y: {
-                        beginAtZero: true
-                    }
+                    x: { grid: { display: false } },
+                    y: { beginAtZero: true }
                 }
             }
         });
 
-        // Biểu đồ tròn (Revenue Sources)
-        var labels = @Html.Raw(Json.Serialize(ViewBag.CategoryNames));
-        var data = @Html.Raw(Json.Serialize(ViewBag.TotalQuantities));
+        var labels = @Html.Raw(Json.Serialize(Model.CategoriesName));
+        var data = @Html.Raw(Json.Serialize(Model.TotalQuantity));
         var ctx2 = document.getElementById("myPieChart").getContext("2d");
         var myPieChart = new Chart(ctx2, {
             type: "doughnut",
@@ -235,8 +228,10 @@
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                legend: {
-                    position: 'bottom'
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
                 }
             }
         });
