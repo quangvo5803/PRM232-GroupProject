@@ -8,8 +8,23 @@ namespace WebAPI.Controllers.Admin
         [HttpGet("Statistic")]
         public async Task<IActionResult> GetStatistic()
         {
-            var data = await _facadeService.Static.GetStatisticAsync();
-            return Ok(data);
+            try
+            {
+
+                var data = await _facadeService.Static.GetStatisticAsync();
+
+                if (data == null)
+                {
+                    return BadRequest("No data available");
+                }
+
+                return Ok(data);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"API Error: {ex.Message}");
+                return StatusCode(500, ex.Message);
+            }
         }
 
     }

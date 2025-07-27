@@ -28,75 +28,106 @@ namespace BusinessObject.Services
 
         public async Task<StaticDto> GetStatisticAsync()
         {
-            var allOrders = await _oderService.GetAllOrderAsync();
 
-            var orderCompleted = allOrders.Where(o => o.Status == OrderStatus.Completed.ToString()).ToList();
-            var currentMonth = DateTime.Now.Month;
-            var currentYear = DateTime.Now.Year;
-
-            // Total orders in current month
-            var monthlyOrders = orderCompleted.Where(o => o.OrderDate.Month == currentMonth && o.OrderDate.Year == currentYear).ToList();
-            var totalOrdersMonth = monthlyOrders;
-            var earningsMonth = monthlyOrders.Sum(o => o.TotalPrice);
-
-            // Total prices per month
-            var totalPricesEachMonth = Enumerable.Range(1, 12)
-                .Select(m =>
-                    orderCompleted
-                        .Where(o => o.OrderDate.Month == m && o.OrderDate.Year == currentYear)
-                        .Sum(o => o.TotalPrice)
-                )
-                .ToList();
-
-            // User count
-            var customers = await _userService.GetAllCustomersAsync();
-            var userCount = customers.Count();
-
-            // Average Rating
-            var products = await _productService.GetAllProductAsync();
-            var ratings = new List<int>();
-            foreach (var product in products)
+            try
             {
-                var feedback = await _feedbackService.GetFeedbackProductAdminAsync(product.Id);
-                if (feedback.Feedbacks != null && feedback.Feedbacks.Any())
+                var allOrders = await _oderService.GetAllOrderAsync();
+
+                if (allOrders == null || !allOrders.Any())
                 {
-                    ratings.AddRange(feedback.Feedbacks.Select(f => f.FeedbackStars));
+                    return new StaticDto();
                 }
-            }
-            var avgRating = ratings.Count > 0 ? ratings.Average() : 0;
 
-            // Categories and quantities sold
-            var categories = await _categoryService.GetAllCategoryAsync();
-            var categoryNames = new List<string>();
-            var totalQuantities = new List<int>();
-
-            foreach (var category in categories)
-            {
-                var productIdsInCategory = products
-                    .Where(p => p.Id == category.Id)
-                    .Select(p => p.Id)
+                var orderCompleted = allOrders
+                    .Where(o => o.Status == OrderStatus.Completed.ToString())
                     .ToList();
 
-                var quantitySold = orderCompleted
-                    .SelectMany(o => o.OrderDetails)
-                    .Where(od => productIdsInCategory.Contains(od.Id))
-                    .Sum(od => od.Quantity);
+                var currentMonth = DateTime.Now.Month;
+                var currentYear = DateTime.Now.Year;
 
-                categoryNames.Add(category.Name);
-                totalQuantities.Add(quantitySold);
+                // Thống kê tháng
+                var monthlyOrders = orderCompleted
+                    .Where(o => o.OrderDate.Month == currentMonth && o.OrderDate.Year == currentYear)
+                    .ToList();
+
+                var earningsMonth = monthlyOrders.Sum(o => o.TotalPrice);
+
+                var totalPricesEachMonth = Enumerable.Range(1, 12)
+                    .Select(m =>
+                        orderCompleted
+                            .Where(o => o.OrderDate.Month == m && o.OrderDate.Year == currentYear)
+                            .Sum(o => o.TotalPrice)
+                    )
+                    .ToList();
+
+                var customers = await _userService.GetAllCustomersAsync();
+                var userCount = customers?.Count() ?? 0;
+
+                var products = await _productService.GetAllProductAsync();
+
+                var ratings = new List<int>();
+                if (products != null)
+                {
+                    foreach (var product in products)
+                    {
+                        var feedback = await _feedbackService.GetFeedbackProductAdminAsync(product.Id);
+                        if (feedback?.Feedbacks != null && feedback.Feedbacks.Any())
+                        {
+                            ratings.AddRange(feedback.Feedbacks.Select(f => f.FeedbackStars));
+                        }
+                    }
+                }
+                var avgRating = ratings.Count > 0 ? ratings.Average() : 0;
+
+                // Thống kê số lượng theo Category
+                var categories = await _categoryService.GetAllCategoryAsync();
+
+                var categoryNames = new List<string>();
+                var totalQuantities = new List<int>();
+
+                if (categories != null && products != null)
+                {
+                    foreach (var category in categories)
+                    {
+                        var productIds = products
+                            .Where(p => p.Category != null && p.Category.Id == category.Id)
+                            .Select(p => p.Id)
+                            .ToList();
+
+                        int quantity = orderCompleted
+                            .Where(o => o.OrderDetails != null) // Thêm null check
+                            .SelectMany(o => o.OrderDetails)
+                            .Where(od => od.Product != null && productIds.Contains(od.Product.Id))
+                            .Sum(od => od.Quantity);
+
+                        categoryNames.Add(category.Name);
+                        totalQuantities.Add(quantity);
+
+                    }
+                }
+
+                var result = new StaticDto
+                {
+                    TotalOrdersMonth = monthlyOrders.Count,
+                    EarningsMonth = earningsMonth,
+                    UserCount = userCount,
+                    AvgRating = avgRating,
+                    TotalPricesEachMonth = totalPricesEachMonth,
+                    CategoriesName = categoryNames,
+                    TotalQuantity = totalQuantities
+                };
+
+
+                return result;
             }
-
-            return new StaticDto
+            catch (Exception ex)
             {
-                TotalOrdersMonth = totalOrdersMonth.Count,
-                EarningsMonth = earningsMonth,
-                UserCount = userCount,
-                AvgRating = avgRating,
-                TotalPricesEachMonth = totalPricesEachMonth,
-                CategoriesName = categoryNames,
-                TotalQuantity = totalQuantities
-            };
+                Console.WriteLine($"Error in GetStatisticAsync: {ex.Message}");
+                Console.WriteLine($"Stack trace: {ex.StackTrace}");
+                throw;
+            }
         }
+
 
     }
 }
