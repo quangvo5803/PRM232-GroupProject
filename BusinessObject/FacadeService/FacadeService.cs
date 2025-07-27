@@ -33,7 +33,6 @@ namespace BusinessObject.FacadeService
             IMapper mapper,
             IVnPayService vnPayService,
             UserManager<ApplicationUser> userManager
-
         )
         {
             _unitOfWork = unitOfWork;
@@ -43,7 +42,7 @@ namespace BusinessObject.FacadeService
             _vpnPayService = vnPayService;
             _userManager = userManager;
             Category = new CategoryService(_unitOfWork, _mapper);
-            Order = new OrderService(_unitOfWork, _mapper, _vpnPayService);
+            Order = new OrderService(_unitOfWork, _mapper, _vpnPayService, _userManager);
             ShoppingCart = new ShoppingCartService(_unitOfWork, _mapper);
             Category = new CategoryService(_unitOfWork, _mapper);
             Product = new ProductService(_unitOfWork, _mapper);
