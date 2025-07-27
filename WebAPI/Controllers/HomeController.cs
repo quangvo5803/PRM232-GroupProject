@@ -31,5 +31,12 @@ namespace WebAPI.Controllers
             }
             return Ok(product);
         }
+
+        [HttpGet("GetAllFeedback/{id}")]
+        public async Task<IActionResult> GetAllFeedback(int id)
+        {
+            var rs = await _facadeService.Feedback.GetAllFeedbackAsync(id);
+            return Ok(rs);
+        }
     }
 }
