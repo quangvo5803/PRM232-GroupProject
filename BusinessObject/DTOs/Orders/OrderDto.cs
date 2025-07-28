@@ -1,4 +1,5 @@
 ﻿using BusinessObject.DTOs.OrderDetail;
+using DataAccess.Entities.Application;
 
 namespace BusinessObject.DTOs.Orders
 {
@@ -9,7 +10,7 @@ namespace BusinessObject.DTOs.Orders
         public DateTime OrderDate { get; set; }
         public double TotalPrice { get; set; }
         public required string PaymentMethod { get; set; }
-        public required string Status { get; set; }
+        public OrderStatus Status { get; set; }
         public string? ShippingAddress { get; set; }
         public string? PhoneNumber { get; set; }
         public string? UserFullName { get; set; }

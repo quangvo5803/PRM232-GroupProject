@@ -37,7 +37,8 @@ namespace BusinessObject.Services
 
         public async Task<IEnumerable<OrderDto>> GetAllOrderAsync()
         {
-            var order = await _unitOfWork.Order.GetAllAsync(includeProperties: "OrderDetails");
+            var order = await _unitOfWork.Order
+                .GetAllAsync(includeProperties: "OrderDetails,OrderDetails.Product,OrderDetails.Product.Category,OrderDetails.Product.ProductAvatar");
 
             var rsMapper = _mapper.Map<IEnumerable<OrderDto>>(order ?? new List<Order>());
             foreach (var orderDto in rsMapper)

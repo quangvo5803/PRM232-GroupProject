@@ -3,9 +3,9 @@
 
 @model List<BusinessObject.DTOs.Orders.OrderDto>
 @{
-    var pendingOrder = Model.Where(o => o.Status == "Pending").OrderBy(x => x.OrderDate).ToList();
-    var completeOrder = Model.Where(o => o.Status == "Completed").OrderBy(x => x.OrderDate).ToList();
-    var cancelOrder = Model.Where(o => o.Status == "Cancelled").OrderBy(x => x.OrderDate).ToList();
+    var pendingOrder = Model.Where(o => o.Status == OrderStatus.Pending).OrderByDescending(x => x.OrderDate).ToList();
+    var completeOrder = Model.Where(o => o.Status == OrderStatus.Completed).OrderByDescending(x => x.OrderDate).ToList();
+    var cancelOrder = Model.Where(o => o.Status == OrderStatus.Cancelled).OrderByDescending(x => x.OrderDate).ToList();
 
 }
 @{

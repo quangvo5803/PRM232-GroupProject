@@ -39,7 +39,7 @@ namespace BusinessObject.Services
                 }
 
                 var orderCompleted = allOrders
-                    .Where(o => o.Status == OrderStatus.Completed.ToString())
+                    .Where(o => o.Status == OrderStatus.Completed)
                     .ToList();
 
                 var currentMonth = DateTime.Now.Month;
@@ -94,7 +94,7 @@ namespace BusinessObject.Services
                             .Select(p => p.Id)
                             .ToList();
 
-                        int quantity = orderCompleted
+                        var quantity = orderCompleted
                             .Where(o => o.OrderDetails != null) // Thêm null check
                             .SelectMany(o => o.OrderDetails)
                             .Where(od => od.Product != null && productIds.Contains(od.Product.Id))

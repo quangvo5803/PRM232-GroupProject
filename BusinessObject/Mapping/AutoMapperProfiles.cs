@@ -48,12 +48,13 @@ namespace BusinessObject.Mapping
                     dest => dest.PaymentMethod,
                     opt => opt.MapFrom(src => src.PaymentMethod.ToString())
                 )
-                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status.ToString()))
+                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status))
                 .ForMember(dest => dest.OrderDetails, opt => opt.MapFrom(src => src.OrderDetails));
             CreateMap<OrderCreateRequestDto, Order>();
 
             //OrderDetail
-            CreateMap<OrderDetail, OrderDetailDto>();
+            CreateMap<OrderDetail, OrderDetailDto>()
+                .ForMember(dest => dest.Product, opt => opt.MapFrom(src => src.Product));
             CreateMap<OrderDetailCreateRequestDto, OrderDetail>();
 
             //CheckOut
